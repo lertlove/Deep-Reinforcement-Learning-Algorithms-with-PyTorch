@@ -42,6 +42,9 @@ class Base_Agent(object):
         self.visualise_results_boolean = config.visualise_individual_results
         self.global_step_number = 0
         self.turn_off_exploration = False
+        
+        self.passive = False
+
         gym.logger.set_level(40)  # stops it from printing an unnecessary warning
         self.log_game_info()
 
@@ -186,7 +189,10 @@ class Base_Agent(object):
         start = time.time()
         while self.episode_number < num_episodes:
             self.reset_game()
-            self.step()
+            if self.passive == True:
+                self.start()
+            else:
+                self.step()
             if save_and_print_results: self.save_and_print_result()
         time_taken = time.time() - start
         if show_whether_achieved_goal: self.show_whether_achieved_goal()
