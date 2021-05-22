@@ -190,7 +190,7 @@ class Base_Agent(object):
         while self.episode_number < num_episodes:
             self.reset_game()
             if self.passive == True:
-                self.start()
+                self.environment.start_game()
             else:
                 self.step()
             if save_and_print_results: self.save_and_print_result()
