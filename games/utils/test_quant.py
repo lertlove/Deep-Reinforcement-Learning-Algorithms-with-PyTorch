@@ -5,4 +5,4 @@ def test_split_to_tile():
     destDir = '../../content/CTU_Images'
     q.splitImageIntoTiles(filename,640,640,destDir)
 
-# test_split_to_tile()
+test_split_to_tile()

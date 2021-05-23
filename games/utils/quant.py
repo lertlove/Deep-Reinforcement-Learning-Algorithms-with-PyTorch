@@ -1,4 +1,5 @@
 import os
+from os import path
 import argparse
 import cv2
 import numpy as np
@@ -80,19 +81,25 @@ def doQP():
         # computeMSE(targetFile+".jpg",fileName)
         computeVariance(fileName)
 
-def splitImageIntoTiles(filepath,x,y,dest):
+def splitImageIntoTiles(filepath,x,y,dest,forceSplit=False):
     fileName = Path(filepath).stem
     image = cv2.imread(filepath)
     print(f"{filepath} shape:{image.shape}")
     splitFiles = []
-    splitFolder = f"{dest}/{fileName}_split"
-    createTargetDir(dest)
-    createTargetDir(splitFolder)
-    for r in range(0,image.shape[0],x):
-        for c in range(0,image.shape[1],y):
-            saveFile = f"{splitFolder}/{fileName}_{r}_{c}.jpg"
-            cv2.imwrite(saveFile,image[r:r+x, c:c+y,:])
-            splitFiles.append(saveFile)
+    splitFolder = f"{dest}/{fileName}_split_{x}_{y}"
+    if path.exists(splitFolder)==False or forceSplit:
+        createTargetDir(dest)
+        createTargetDir(splitFolder)
+        for r in range(0,image.shape[0],x):
+            for c in range(0,image.shape[1],y):
+                saveFile = f"{splitFolder}/{fileName}_{r}_{c}.jpg"
+                cv2.imwrite(saveFile,image[r:r+x, c:c+y,:])
+                splitFiles.append(saveFile)
+    else:
+        for filename in os.listdir(splitFolder):
+            if filename.endswith(".jpg") or filename.endswith(".png"):
+                saveFile = os.path.join(splitFolder, filename)
+                splitFiles.append(saveFile)
     return splitFiles
 
 def doAllFilesInDir(directory):
