@@ -1,0 +1,19 @@
+version: '2.3'
+
+services:
+  reinforcement:
+    build: ./
+    tty: true
+    runtime: nvidia
+    container_name: reinforcement
+    environment:
+      - DISPLAY
+      - QT_X11_NO_MITSHM=1
+      - NVIDIA_DRIVER_CAPABILITIES=video,compute,utility
+    volumes:
+      - "./:/src:cached"
+      - $HOME/.Xauthority:/root/.Xauthority 
+      - /tmp/.X11-unix/:/tmp/.X11-unix
+    ports:
+      - "8888:8888"
+    network_mode: host
