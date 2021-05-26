@@ -2,13 +2,17 @@ import rate_control_game as rcg
 import cv2
 import tqdm
 # import fiftyone
+import sys
+from os.path import dirname, join, abspath
 from openimages.download import download_images
 
-image_dir = '../../content/dataset'
-rateControlGame = rcg.RateControlGame(image_dir,None)
+# image_dir = '../../content/dataset'
+# rateControlGame = rcg.RateControlGame(image_dir,None)
+
 
 def showImage():
-    imageFile = '/Users/lert-hg/Documents/PhD/reinforcement/DRL/content/TinyImageNet/train/0/0_7.jpg'
+    imageFile = abspath(join(dirname(__file__), '../../content/dataset/airplane/0a2bd01da9b51a94.jpg'))
+
     # /Users/lert-hg/Documents/PhD/reinforcement/DRL/content/dataset_split/test/plane/plane.jpg
     frameImage = cv2.imread(imageFile)
 
@@ -47,3 +51,5 @@ def downloadOpenImages(dest,classes):
     classes = ["Helmet","Taxi","Car","Backpack","Bicycle"]
     download_images(image_dir, classes, None)
 
+if __name__ == '__main__':
+    globals()[sys.argv[1]]()
