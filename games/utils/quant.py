@@ -30,19 +30,29 @@ import PIL
 # except FileExistsError:
 #     print("Directory " , dirName ,  " already exists")
 
-def doQuantize(image,qp):
+def doQuantize(filepath, qp, dest):
+
+    fileName = Path(filepath).stem
+    image = Image.open(filepath) 
+    
+    quantizedDir = f"{dest}/"
+    createTargetDir(quantizedDir)
+
     # quantize a image 
     img = image.quantize(qp)
 
     if img.mode != 'RGB':
         img = img.convert('RGB')
 
-    fileName = "{}/{}_{}.jpg".format(dirName,targetFile,qp)
-    img.save( fileName, 'jpeg')
+    quantizedFile = "{}/{}-qp_{}.jpg".format(quantizedDir,fileName,qp)
+    img.save(quantizedFile, 'jpeg')
+    filesize = os.path.getsize(quantizedFile)*8 # in bit usage
 
-    computePSNR(targetFile+".jpg",fileName)
-    # to show specified image 
-    img.show() 
+    mse = computeMSE(filepath, quantizedFile)
+
+    return filesize, mse
+    # # to show specified image 
+    # img.show() 
   
 def PSNR(original, compressed):
     mse = np.mean((original - compressed) ** 2)
@@ -68,10 +78,11 @@ def computeMSE(originalFile,compressFile):
 
 def computeVariance(fileName):
     image = cv2.imread(fileName,0)
-    (mean , stddv) = cv2.meanStdDev(image)
-    # variance = np.var(image)
+    ctu_height, ctu_width = image.shape
+    # (mean , stddv) = cv2.meanStdDev(image)
+    variance = np.var(image)
     # print(f"{fileName} - mean: {mean}, std:{stddv} => {stddv**2}, var:{variance}")
-    return mean,stddv**2
+    return ctu_height, ctu_width, variance
     
 def doQP():
     for qp in qpList:
@@ -81,7 +92,7 @@ def doQP():
         # computeMSE(targetFile+".jpg",fileName)
         computeVariance(fileName)
 
-def splitImageIntoTiles(filepath,x,y,dest,forceSplit=False):
+def splitImageIntoTiles(filepath, x, y, dest, forceSplit=False):
     fileName = Path(filepath).stem
     image = cv2.imread(filepath)
     print(f"{filepath} shape:{image.shape}")
@@ -90,11 +101,13 @@ def splitImageIntoTiles(filepath,x,y,dest,forceSplit=False):
     if path.exists(splitFolder)==False or forceSplit:
         createTargetDir(dest)
         createTargetDir(splitFolder)
+        ctu_index = 0
         for r in range(0,image.shape[0],x):
             for c in range(0,image.shape[1],y):
-                saveFile = f"{splitFolder}/{fileName}_{r}_{c}.jpg"
+                saveFile = f"{splitFolder}/{ctu_index}-{fileName}_{r}_{c}.jpg"
                 cv2.imwrite(saveFile,image[r:r+x, c:c+y,:])
                 splitFiles.append(saveFile)
+                ctu_index = ctu_index + 1
     else:
         for filename in os.listdir(splitFolder):
             if filename.endswith(".jpg") or filename.endswith(".png"):

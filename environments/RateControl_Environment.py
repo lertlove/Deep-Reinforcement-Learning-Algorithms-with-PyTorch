@@ -18,7 +18,9 @@ NUM_QP_LEVELS = 256
 MAX_NUM_CTUS = 100
 
 GAME_MODE=GameMode.TRAIN_MODE
-SOURCE_DIR = "/Users/lert-hg/Documents/PhD/reinforcement/DRL/content/dataset"
+
+SOURCE_DIR = abspath(join(dirname(__file__), '../content/dataset'))
+
 
 class RateControl_Environment(gym.Env):
     environment_name = "Rate Control Environment"
@@ -40,10 +42,14 @@ class RateControl_Environment(gym.Env):
         # 5. percent of remaining CTU or percent of remaining area
         # 6. normalized variance of each CTU
         # 7. %of area
-        self.observation_space = spaces.Dict(dict(
-            episodeVariables=spaces.Box(0, float('inf'), shape=(3,), dtype='float32'),
-            observation=spaces.Box(0, 1, shape=(4,), dtype='float32'),
-        ))
+        # self.observation_space = spaces.Dict(dict(
+        #     episodeVariables=spaces.Box(0, float('inf'), shape=(3,), dtype='float32'),
+        #     observation=spaces.Box(0, 1, shape=(4,), dtype='float32'),
+        # ))
+
+        low = np.zeros(7)
+        high = np.array([float('inf'), float('inf'), float('inf'), 1, 1, 1, 1])
+        self.observation_space = spaces.Box(low,high)
 
         self.seed()
         self.reward_threshold = 0.0
@@ -53,6 +59,12 @@ class RateControl_Environment(gym.Env):
         self.environment_dimension = environment_dimension
         self.total_num_ctus = MAX_NUM_CTUS
         self.ctuImages = []
+        
+        self.ctuVariants = []
+        self.ctuShapes = []
+        self.current_ctu = 0
+        self.currentBitUsed = 0
+        self.currentMSE = 0
         # self.reward_for_achieving_goal = self.environment_dimension
         # self.step_reward_for_not_achieving_goal = -1
 
@@ -71,77 +83,99 @@ class RateControl_Environment(gym.Env):
         # do start game
         print("Environment - Do start game!")
         print("Game will then request action")
-        return self.game.start_game()
+        self.currentBitUsed, self.currentMSE = self.game.start_game()
+        self.onDoneAction()
 
     def request_action(self,state=None):
         # Expect request from HM
-        print("Environment - onRequestAction")
+
+        if state == None:
+            state = self.state
+
+        print(f"Environment - onRequestAction state : {state}")
         action = self.onRequestAction(state)
         print(f"{self.current_ctu} - select action - {action}")
-        assert action > NUM_QP_LEVELS , "You picked an invalid action"
+        assert action <= NUM_QP_LEVELS , "You picked an invalid action"
         return action
 
     def reset(self):
         # retrieve new image
-        print("reset")
+        print("Environment reset")
+        self.step_count = 0
+        self.current_ctu = 0
+        self.currentBitUsed = 0
+        self.currentMSE = 0
         targetBit, imageData = self.game.reset(GAME_MODE)
-        imageFile, ctuImages, ctuMeans, ctuVariants = imageData
-        # print(f"ctuMeans : {ctuMeans}")
-        # print(f"ctuVariants : {ctuVariants}")
-        # Reset the state of the environment to an initial state
-        self.total_target_bit = targetBit #INITIAL_TARGET_BIT #or random target bit, but fix image
-        self.total_num_ctus = len(ctuImages) #MAX_NUM_CTUS #number of ctu tiles
-        # Image
-        frameImage = cv2.imread(imageFile)
-        pic_height, pic_width, _ = frameImage.shape
+        pic_height, pic_width, total_num_ctus, self.ctuShapes, self.ctuVariants = imageData
 
+        # print(f"ctuMeans : {ctuMeans}")
+        # print(f"ctuVariants : {self.ctuVariants}")
+        # Reset the state of the environment to an initial state
+        self.maxVariant = max(self.ctuVariants)
+        self.total_target_bit = targetBit #INITIAL_TARGET_BIT #or random target bit, but fix image
+        self.total_num_ctus = total_num_ctus #MAX_NUM_CTUS #number of ctu tiles
+        
         self.total_area = pic_width*pic_height
         self.episodeVariables = np.array([self.total_target_bit,self.total_num_ctus,self.total_area])
-        self.current_ctu = 0
-        ctuImage = cv2.imread(ctuImages[self.current_ctu])
-        ctu_height, ctu_width, _ = ctuImage.shape
         
         percent_bit_balance = 1
         percent_remaining_ctu = 1
-        ctu_variance = 0 #compute first ctu variance
-        percent_ctu_area = (ctu_width*ctu_height)/(self.total_area)
-        self.state = [percent_bit_balance, percent_remaining_ctu, ctu_variance, percent_ctu_area]
         
+        ctu_height, ctu_width = self.ctuShapes[self.current_ctu]
+        ctu_variance = self.ctuVariants[self.current_ctu]/self.maxVariant #compute first ctu variance
+        # print(f"self.maxVariant = {self.maxVariant}, self.ctuVariants[self.current_ctu] = {self.ctuVariants[self.current_ctu]}")
+        # print(f"ctu_variance = {ctu_variance}")
+        percent_ctu_area = (ctu_width*ctu_height)/(self.total_area)
+        self.stateVariables = np.array([percent_bit_balance, percent_remaining_ctu, ctu_variance, percent_ctu_area])
+        
+        self.state = np.concatenate((self.episodeVariables, self.stateVariables))
         self.next_state = None
         self.reward = None
         self.done = False
 
-        return {"observation": np.array(self.state), "episodeVariables": self.episodeVariables}
+        return self.state
 
-    def done_action_observer(self,next_ctu,remaining_bit, norm_variance, ctu_width, ctu_height, distortion):
+    def done_action(self):
         # Expect response from HM
         # m_uiPicTotalBits += pCtu->getTotalBits();
         # m_dPicRdCost     += pCtu->getTotalCost();
         # m_uiPicDist      += pCtu->getTotalDistortion();
-        percent_bit_balance = remaining_bit/self.total_target_bit
-        percent_remaining_ctu = (self.total_num_ctus-next_ctu-1)/self.total_num_ctus
-        ctu_variance = norm_variance
-        percent_ctu_area = (ctu_width*ctu_height)/(self.total_area)
+        self.current_ctu = self.current_ctu + 1
+        self.reward = -self.currentMSE
 
-        self.current_ctu = next_ctu
-        self.next_state = [percent_bit_balance, percent_remaining_ctu, ctu_variance, percent_ctu_area]
-        self.reward = -distortion
-        self.onDoneAction()
-        
-        return True
+        remaining_bit = self.total_target_bit - self.currentBitUsed
+        percent_bit_balance = remaining_bit/self.total_target_bit
+
+        if self.current_ctu <= self.total_num_ctus:
+            
+            percent_remaining_ctu = (self.total_num_ctus-self.current_ctu)/self.total_num_ctus
+            ctu_height, ctu_width = self.ctuShapes[self.current_ctu]
+            ctu_variance = self.ctuVariants[self.current_ctu]/self.maxVariant #compute first ctu variance
+            percent_ctu_area = (ctu_width*ctu_height)/(self.total_area)
+
+        else:
+            percent_remaining_ctu = 0
+            ctu_variance = 0
+            percent_ctu_area = 0
+
+        self.stateVariables = np.array([percent_bit_balance, percent_remaining_ctu, ctu_variance, percent_ctu_area])
+        self.next_state = np.concatenate((self.episodeVariables, self.stateVariables))
 
     def step(self, action):
-        # print(f'{self.current_ctu} - after action - {action}')
+        print(f'{self.current_ctu} - after action - {action}')
         self.step_count += 1
+        self.done_action()
         if self.current_ctu > self.total_num_ctus:
             self.done = True
         self.state = self.next_state
+        print(f"self.episodeVariables = {self.episodeVariables}")
+        print(f"self.state = {self.state}")
+        return self.state, self.reward, self.done, {}
 
-        return {"observation": np.array(self.state), "episodeVariables": self.episodeVariables}, self.reward, self.done, {}
+    def finishStep(self):
+        # do next compress
+        self.game.finishStep()
 
-    def onCTUSplitDone(self,ctuImages):
-        self.ctuImages = ctuImages
-        print(self.ctuImages)
 
 if __name__ == '__main__':
     image_dir = SOURCE_DIR
