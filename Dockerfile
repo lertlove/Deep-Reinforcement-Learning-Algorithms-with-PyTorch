@@ -10,6 +10,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN apt install -y python python3 python-pip python3-pip
 RUN unlink /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
 
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt install -y python3-opencv
+
+RUN python -m pip install --upgrade pip
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 

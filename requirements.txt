@@ -9,3 +9,4 @@ jupyter
 openimages
 fiftyone
 split-folders
+image-slicer
