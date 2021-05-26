@@ -4,11 +4,10 @@ from os.path import dirname, abspath
 sys.path.append(dirname(dirname(abspath(__file__))))
 
 import gym
-from agents.DQN_agents.DQN_HER import DQN_HER
 from environments.RateControl_Environment import RateControl_Environment
 from agents.Trainer import Trainer
 from utilities.data_structures.Config import Config
-from agents.DQN_agents.DQN import DQN
+from agents.DQN_agents.Passive_DQN import Passive_DQN
 
 config = Config()
 config.seed = 1
@@ -28,7 +27,7 @@ config.save_model = False
 
 
 config.hyperparameters = {
-    "DQN_Agents": {
+    "Passive_DQN_Agents": {
         "learning_rate": 0.001,
         "batch_size": 128,
         "buffer_size": 100000,
@@ -48,7 +47,7 @@ config.hyperparameters = {
 }
 
 if __name__== '__main__':
-    AGENTS = [DQN]
+    AGENTS = [Passive_DQN]
     trainer = Trainer(config, AGENTS)
     trainer.run_games_for_agents()
 
