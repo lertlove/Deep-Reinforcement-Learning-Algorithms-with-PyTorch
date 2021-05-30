@@ -65,15 +65,18 @@ class RateControlGame():
     
     def finishStep(self):
         self.current_ctu = self.current_ctu + 1
-        self.doCompressCtu()
+        return self.doCompressCtu()
 
     def doCompressCtu(self):
-        selectedQP = self.environment.request_action()
-        filepath = self.ctuImages[self.current_ctu]
-        # print(f"doCompressCtu self.current_ctu : {self.current_ctu}")
-        # print(f"doCompressCtu filepath : {filepath}")
-        destDir = f"{self.ctuSplitFolder}/{self.episode_step}"
-        bitused, mse = quant.doQuantize(filepath,selectedQP,destDir)
+        bitused, mse = 0, 0
+        if self.current_ctu < len(self.ctuImages):
+            selectedQP = self.environment.request_action()
+            filepath = self.ctuImages[self.current_ctu]
+            # print(f"doCompressCtu self.current_ctu : {self.current_ctu}")
+            # print(f"doCompressCtu filepath : {filepath}")
+            destDir = f"{self.ctuSplitFolder}/{self.episode_step}"
+            bitused, mse = quant.doQuantize(filepath,selectedQP,destDir)
+        
         return bitused, mse
 
     def reset(self,mode):

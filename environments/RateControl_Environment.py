@@ -146,8 +146,7 @@ class RateControl_Environment(gym.Env):
         remaining_bit = self.total_target_bit - self.currentBitUsed
         percent_bit_balance = remaining_bit/self.total_target_bit
 
-        if self.current_ctu <= self.total_num_ctus:
-            
+        if self.current_ctu < self.total_num_ctus:
             percent_remaining_ctu = (self.total_num_ctus-self.current_ctu)/self.total_num_ctus
             ctu_height, ctu_width = self.ctuShapes[self.current_ctu]
             ctu_variance = self.ctuVariants[self.current_ctu]/self.maxVariant #compute first ctu variance
@@ -174,12 +173,14 @@ class RateControl_Environment(gym.Env):
 
     def finishStep(self):
         # do next compress
-        self.game.finishStep()
+        
+        self.currentBitUsed, self.currentMSE = self.game.finishStep()
+        self.onDoneAction()
 
 
-if __name__ == '__main__':
-    image_dir = SOURCE_DIR
-    environment = RateControl_Environment()
-    environment.reset()
-    environment.start_game()
-    print("Run game environment >>>")
+# if __name__ == '__main__':
+#     image_dir = SOURCE_DIR
+#     environment = RateControl_Environment()
+#     environment.reset()
+#     environment.start_game()
+#     print("Run game environment >>>")
