@@ -1,5 +1,6 @@
 import os
 from os import path
+import re
 import argparse
 import cv2
 import numpy as np
@@ -35,7 +36,7 @@ def doQuantize(filepath, qp, dest):
     fileName = Path(filepath).stem
     image = Image.open(filepath) 
     
-    quantizedDir = f"{dest}/"
+    quantizedDir = f"{dest}"
     createTargetDir(quantizedDir)
 
     # quantize a image 
@@ -113,7 +114,30 @@ def splitImageIntoTiles(filepath, x, y, dest, forceSplit=False):
             if filename.endswith(".jpg") or filename.endswith(".png"):
                 saveFile = os.path.join(splitFolder, filename)
                 splitFiles.append(saveFile)
+    
+    sort_nicely(splitFiles)
+
     return splitFiles
+
+
+
+def tryint(s):
+    try:
+        return int(s)
+    except:
+        return s
+
+def alphanum_key(s):
+    """ Turn a string into a list of string and number chunks.
+        "z23a" -> ["z", 23, "a"]
+    """
+    fileName = Path(s).stem
+    return [ tryint(c) for c in re.split('([0-9]+)', fileName) ]
+
+def sort_nicely(l):
+    """ Sort the given list in the way that humans expect.
+    """
+    l.sort(key=alphanum_key)
 
 def doAllFilesInDir(directory):
     for filename in os.listdir(directory):

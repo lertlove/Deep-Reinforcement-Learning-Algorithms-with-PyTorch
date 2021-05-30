@@ -35,7 +35,9 @@ class Passive_DQN(DQN):
             self.state = self.next_state #this is to set the state for the next iteration
             self.global_step_number += 1
             self.environment.finishStep()
+            print(f"Agent - done = {self.done} finish step")
         else:
+            print(f"Agent - done = {self.done} finish episode")
             self.episode_number += 1
     
     def start(self):
