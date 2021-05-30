@@ -12,25 +12,25 @@ from agents.DQN_agents.Passive_DQN import Passive_DQN
 config = Config()
 config.seed = 1
 config.environment = RateControl_Environment(256)
-config.num_episodes_to_run = 10
-config.file_to_save_data_results = None #"Data_and_Graphs/Bit_Flipping_Results_Data.pkl"
-config.file_to_save_results_graph = None #"Data_and_Graphs/Bit_Flipping_Results_Graph.png"
+config.num_episodes_to_run = 80
+config.file_to_save_data_results = "rc_models/Rate_Control_Results_Data.pkl"
+config.file_to_save_results_graph = "rc_models/Rate_Control_Results_Graph.png"
 config.show_solution_score = False
 config.visualise_individual_results = False
 config.visualise_overall_agent_results = True
 config.standard_deviation_results = 1.0
 config.runs_per_agent = 3
-config.use_GPU = False
+config.use_GPU = True
 config.overwrite_existing_results_file = False
 config.randomise_random_seed = True
-config.save_model = False
+config.save_model = True
 
 
 config.hyperparameters = {
     "Passive_DQN_Agents": {
         "learning_rate": 0.001,
-        "batch_size": 128,
-        "buffer_size": 100000,
+        "batch_size": 64,
+        "buffer_size": 20,
         "epsilon_decay_rate_denominator": 150,
         "discount_rate": 0.999,
         "incremental_td_error": 1e-8,

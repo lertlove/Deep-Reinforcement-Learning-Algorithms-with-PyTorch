@@ -95,7 +95,7 @@ class RateControl_Environment(gym.Env):
         print(f"Environment - onRequestAction state : {state}")
         action = self.onRequestAction(state)
         print(f"{self.current_ctu} - select action - {action}")
-        assert action <= NUM_QP_LEVELS , "You picked an invalid action"
+        assert action < NUM_QP_LEVELS , "You picked an invalid action"
         return action
 
     def reset(self):

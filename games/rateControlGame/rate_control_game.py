@@ -17,8 +17,8 @@ CTU_IMAGE_DIR = abspath(join(dirname(__file__), '../../content/CTU_Images'))
 CTU_QUANTIZED_DIR = abspath(join(dirname(__file__), '../../content/CTU_quantized'))
 # print(f"DATASET_SPLIT_DIR - {DATASET_SPLIT_DIR}")
 
-CTU_WIDTH = 640
-CTU_HEIGHT = 640
+CTU_WIDTH = 64
+CTU_HEIGHT = 64
 # TRAIN_MODE="train"
 # TEST_MODE="test"
 # GAME_MODE=TRAIN_MODE
@@ -70,10 +70,11 @@ class RateControlGame():
     def doCompressCtu(self):
         bitused, mse = 0, 0
         if self.current_ctu < len(self.ctuImages):
-            selectedQP = self.environment.request_action()
+            selectedQP = self.environment.request_action() + 1 # qp = action + 1
             filepath = self.ctuImages[self.current_ctu]
             # print(f"doCompressCtu self.current_ctu : {self.current_ctu}")
-            # print(f"doCompressCtu filepath : {filepath}")
+            print(f"doCompressCtu filepath : {filepath}")
+            print(f"doCompressCtu selectedQP : {selectedQP}")
             destDir = f"{self.ctuSplitFolder}/{self.episode_step}"
             bitused, mse = quant.doQuantize(filepath,selectedQP,destDir)
         

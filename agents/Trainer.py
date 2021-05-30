@@ -69,7 +69,7 @@ class Trainer(object):
             "SAC": "#1C2833",
             "DIAYN": "#F322CD",
             "HRL": "#0E0F0F",
-            "Passive DQN": "#F080B9",
+            "Passive_DQN": "#F080B9",
         }
         return agent_to_color_dictionary
 
