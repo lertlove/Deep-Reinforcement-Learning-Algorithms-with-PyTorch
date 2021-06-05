@@ -17,8 +17,8 @@ CTU_IMAGE_DIR = abspath(join(dirname(__file__), '../../content/CTU_Images'))
 CTU_QUANTIZED_DIR = abspath(join(dirname(__file__), '../../content/CTU_quantized'))
 # print(f"DATASET_SPLIT_DIR - {DATASET_SPLIT_DIR}")
 
-CTU_WIDTH = 64
-CTU_HEIGHT = 64
+CTU_WIDTH = 640
+CTU_HEIGHT = 640
 # TRAIN_MODE="train"
 # TEST_MODE="test"
 # GAME_MODE=TRAIN_MODE
@@ -31,6 +31,7 @@ class RateControlGame():
         # print(f'image dir:{image_dir}')
         self.image_dir = image_dir
         self.episode_step = -1
+        self.agent_round = 0
         self.environment = environment
         self.mode = None
         self.imageFile = None
@@ -58,9 +59,10 @@ class RateControlGame():
         # print(f"train data : {self.train}")
         print(f"train data")
 
-    def start_game(self):
+    def start_game(self,agent_round):
         print("Game - Do start game!")
         self.episode_step = self.episode_step + 1
+        self.agent_round = agent_round
         return self.doCompressCtu()
     
     def finishStep(self):
@@ -75,7 +77,7 @@ class RateControlGame():
             # print(f"doCompressCtu self.current_ctu : {self.current_ctu}")
             print(f"doCompressCtu filepath : {filepath}")
             print(f"doCompressCtu selectedQP : {selectedQP}")
-            destDir = f"{self.ctuSplitFolder}/{self.episode_step}"
+            destDir = f"{self.ctuSplitFolder}/{self.agent_round}_{self.episode_step}"
             bitused, mse = quant.doQuantize(filepath,selectedQP,destDir)
         
         return bitused, mse

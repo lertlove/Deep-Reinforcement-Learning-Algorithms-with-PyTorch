@@ -79,11 +79,11 @@ class RateControl_Environment(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
-    def start_game(self):
+    def start_game(self, agent_round):
         # do start game
         print("Environment - Do start game!")
         print("Game will then request action")
-        self.currentBitUsed, self.currentMSE = self.game.start_game()
+        self.currentBitUsed, self.currentMSE = self.game.start_game(agent_round)
         self.onDoneAction()
 
     def request_action(self,state=None):
