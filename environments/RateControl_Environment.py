@@ -106,7 +106,7 @@ class RateControl_Environment(gym.Env):
         self.currentBitUsed = 0
         self.currentMSE = 0
         targetBit, imageData = self.game.reset(GAME_MODE)
-        pic_height, pic_width, total_num_ctus, self.ctuShapes, self.ctuVariants = imageData
+        pic_height, pic_width, total_num_ctus, self.ctuShapes, self.ctuVariants, filesize = imageData
 
         # print(f"ctuMeans : {ctuMeans}")
         # print(f"ctuVariants : {self.ctuVariants}")
@@ -118,15 +118,19 @@ class RateControl_Environment(gym.Env):
         self.total_area = pic_width*pic_height
         self.episodeVariables = np.array([self.total_target_bit,self.total_num_ctus,self.total_area])
         
-        percent_bit_balance = 1
+        self.remaining_bit = self.total_target_bit
+        self.percent_bit_balance = 1
         percent_remaining_ctu = 1
-        
+        self.percent_remaining_area = 1
+
         ctu_height, ctu_width = self.ctuShapes[self.current_ctu]
         ctu_variance = self.ctuVariants[self.current_ctu]/self.maxVariant #compute first ctu variance
-        # print(f"self.maxVariant = {self.maxVariant}, self.ctuVariants[self.current_ctu] = {self.ctuVariants[self.current_ctu]}")
-        # print(f"ctu_variance = {ctu_variance}")
         percent_ctu_area = (ctu_width*ctu_height)/(self.total_area)
-        self.stateVariables = np.array([percent_bit_balance, percent_remaining_ctu, ctu_variance, percent_ctu_area])
+
+        avg_remaining_ctu_variants = np.mean(self.ctuVariants[self.current_ctu:self.total_num_ctus])/self.maxVariant
+        self.percent_remaining_area -= percent_ctu_area
+        
+        self.stateVariables = np.array([self.percent_bit_balance, percent_remaining_ctu, ctu_variance, percent_ctu_area, avg_remaining_ctu_variants, self.percent_remaining_area])
         
         self.state = np.concatenate((self.episodeVariables, self.stateVariables))
         self.next_state = None
@@ -143,21 +147,26 @@ class RateControl_Environment(gym.Env):
         self.current_ctu = self.current_ctu + 1
         self.reward = -self.currentMSE
 
-        remaining_bit = self.total_target_bit - self.currentBitUsed
-        percent_bit_balance = remaining_bit/self.total_target_bit
+        self.remaining_bit -= self.currentBitUsed
+        self.percent_bit_balance = self.remaining_bit/self.total_target_bit
 
         if self.current_ctu < self.total_num_ctus:
             percent_remaining_ctu = (self.total_num_ctus-self.current_ctu)/self.total_num_ctus
             ctu_height, ctu_width = self.ctuShapes[self.current_ctu]
             ctu_variance = self.ctuVariants[self.current_ctu]/self.maxVariant #compute first ctu variance
             percent_ctu_area = (ctu_width*ctu_height)/(self.total_area)
+            avg_remaining_ctu_variants = np.mean(self.ctuVariants[self.current_ctu:self.total_num_ctus])/self.maxVariant
+            
+            self.percent_remaining_area -= percent_ctu_area
 
         else:
             percent_remaining_ctu = 0
             ctu_variance = 0
             percent_ctu_area = 0
+            avg_remaining_ctu_variants = 0
+            self.percent_remaining_area = 0
 
-        self.stateVariables = np.array([percent_bit_balance, percent_remaining_ctu, ctu_variance, percent_ctu_area])
+        self.stateVariables = np.array([self.percent_bit_balance, percent_remaining_ctu, ctu_variance, percent_ctu_area, avg_remaining_ctu_variants, self.percent_remaining_area])
         self.next_state = np.concatenate((self.episodeVariables, self.stateVariables))
 
     def step(self, action):

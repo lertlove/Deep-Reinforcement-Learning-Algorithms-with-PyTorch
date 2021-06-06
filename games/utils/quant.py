@@ -49,7 +49,7 @@ def doQuantize(filepath, qp, dest):
     img.save(quantizedFile, 'jpeg')
     filesize = os.path.getsize(quantizedFile)*8 # in bit usage
 
-    mse = computeMSE(filepath, quantizedFile)
+    mse = computeMSEFromFiles(filepath, quantizedFile)
 
     return filesize, mse
     # # to show specified image 
@@ -70,11 +70,16 @@ def computePSNR(originalFile,compressFile):
      value = PSNR(original, compressed)
      print(f"{compressFile} - PSNR value is {value} dB")
 
-def computeMSE(originalFile,compressFile):
+def computeMSEFromFiles(originalFile,compressFile):
     original = cv2.imread(originalFile)
     compressed = cv2.imread(compressFile, 1)
+    
+    return computeMSE(original,compressed)
+
+def computeMSE(original,compressed):
+    
     mse = np.mean((original - compressed) ** 2)
-    print(f"{compressFile} - MSE value is {mse}")
+    print(f"MSE value is {mse}")
     return mse
 
 def computeVariance(fileName):
@@ -90,7 +95,7 @@ def doQP():
         print(qp)
         # doQuantize(image,qp)
         fileName = "{}/{}_{}.jpg".format(dirName,targetFile,qp)
-        # computeMSE(targetFile+".jpg",fileName)
+        # computeMSEFromFiles(targetFile+".jpg",fileName)
         computeVariance(fileName)
 
 def splitImageIntoTiles(filepath, x, y, dest, forceSplit=False):
@@ -105,7 +110,7 @@ def splitImageIntoTiles(filepath, x, y, dest, forceSplit=False):
         ctu_index = 0
         for r in range(0,image.shape[0],x):
             for c in range(0,image.shape[1],y):
-                saveFile = f"{splitFolder}/{ctu_index}-{fileName}_{r}_{c}.jpg"
+                saveFile = f"{splitFolder}/{ctu_index}-{fileName}-{r}_{c}.jpg"
                 cv2.imwrite(saveFile,image[r:r+x, c:c+y,:])
                 splitFiles.append(saveFile)
                 ctu_index = ctu_index + 1
@@ -156,7 +161,52 @@ def createTargetDir(dirName):
     except FileExistsError:
         print("Directory " , dirName ,  " already exists")
 
-# # splitImageIntoTiles(targetFile,620,530)
-# directory = f'{dirName}_split'
-# doAllFilesInDir(directory)
-# computeVariance(targetFile+".jpg")
+def mergeImages(originalFile,targetDir):
+    print("merge images")
+    orgImage = cv2.imread(originalFile)
+    # print(f"orgImage.shape = {orgImage.shape}")
+    mergeImage = np.zeros(orgImage.shape)
+    # print(f"mergeImage.shape = {mergeImage.shape}")
+    ctuFiles = os.listdir(targetDir)
+    sort_nicely(ctuFiles)
+    for filePath in ctuFiles:
+        if filePath.endswith(".jpg") or filePath.endswith(".png"):
+            filename = Path(filePath).stem
+            # metaData = filename.split("-")
+            ctu_index, filename, yx, qp = filename.split("-")
+            y, x = map(int, yx.split("_"))
+            qp = qp.split("_")[1]
+            filePath = os.path.join(targetDir, filePath)
+            print(f"filePath {filePath}")
+            ctuImg = cv2.imread(filePath)
+            h,w,_ = ctuImg.shape
+            # showImage("ctuImg",ctuImg)
+
+            # ctu_index, filename, yx = filename.split("-")
+            # y, x = map(int, yx.split("_"))
+            
+            # filePath = os.path.join(targetDir, filePath)
+            # print(f"filePath {filePath}")
+            # ctuImg = cv2.imread(filePath)
+            # h,w,_ = ctuImg.shape
+
+            mergeImage[y:y+h, x:x+w,:] = ctuImg
+
+    # mergeImage /= 255
+    parentDir,tail = os.path.split(targetDir)
+    mergePrefix = os.path.split(parentDir)[1]
+    mergeDir = f"{parentDir}/merged"
+    createTargetDir(mergeDir)
+    mergePath = f"{mergeDir}/merged_{mergePrefix}-{tail}.jpg"
+
+    ctuImg = cv2.imwrite(mergePath,mergeImage)
+    # showImage("mergeImage",mergeImage)
+    return mergeImage
+
+
+def showImage(windowName,image):
+    
+    cv2.imshow(windowName,image)
+    cv2.waitKey(0) 
+    
+    cv2.destroyAllWindows()

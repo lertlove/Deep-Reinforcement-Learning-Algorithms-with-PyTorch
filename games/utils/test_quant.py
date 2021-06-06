@@ -16,6 +16,24 @@ def test_quantized():
     destDir = '../../content/CTU_Images/c56ee63069374df9_split_640_640/1'
     q.doQuantize(filepath,50,destDir)
 
+def test_merge():
+    originalFile = "/src/content/dataset_split/train/hammer/a4aa1e0a3af42b26.jpg"
+    targetDir = "/src/content/CTU_Images/a4aa1e0a3af42b26_split_640_640/1_9"
+    mergeImage = q.mergeImages(originalFile,targetDir)
+
+def test_merge2():
+    originalFile = "/src/content/dataset_split/train/hammer/a4aa1e0a3af42b26.jpg"
+    targetDir = "/src/content/CTU_Images/a4aa1e0a3af42b26_split_640_640"
+    mergeImage = q.mergeImages(originalFile,targetDir)
+
+def test_mse():
+    originalFile = "/src/content/dataset_split/train/hammer/a4aa1e0a3af42b26.jpg"
+    targetFile = "/src/content/CTU_Images/a4aa1e0a3af42b26_split_640_640/merged/merged_CTU_Images-a4aa1e0a3af42b26_split_640_640.jpg"
+    mse = q.computeMSEFromFiles(originalFile,targetFile)
+    
 # ctuImages = test_split_to_tile()
 # print(ctuImages)
 # test_quantized()
+# test_merge2()
+
+test_mse()
