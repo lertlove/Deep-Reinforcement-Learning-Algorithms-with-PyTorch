@@ -122,7 +122,16 @@ class Trainer(object):
             agent_results.append([game_scores, rolling_scores, len(rolling_scores), -1 * max(rolling_scores), time_taken])
             if self.config.visualise_individual_results:
                 self.visualise_overall_agent_results([rolling_scores], agent_name, show_each_run=True)
-                plt.show()
+                
+                if self.config.file_to_save_data_results: 
+                    results_path = os.path.splitext(self.config.file_to_save_data_results)[0]
+                    results_path = f"{results_path}-round_{agent_round}.pkl"
+                    self.save_obj(agent_results, results_path)
+                if self.config.file_to_save_results_graph:
+                    graph_path = os.path.splitext(self.config.file_to_save_results_graph)[0]
+                    graph_path = f"{graph_path}-round_{agent_round}.png"
+                    plt.savefig(graph_path, bbox_inches="tight")
+                # plt.show()
             agent_round += 1
         self.results[agent_name] = agent_results
 

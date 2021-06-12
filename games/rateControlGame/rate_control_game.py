@@ -9,16 +9,18 @@ from gameMode import GameMode
 from pathlib import Path
 import cv2
 
-# DATASET_SPLIT_DIR='/Users/lert-hg/Documents/PhD/reinforcement/DRL/content/dataset_split'
-# DATASET_SOURCE_DIR = '/Users/lert-hg/Documents/PhD/reinforcement/DRL/content/dataset'
-# CTU_IMAGE_DIR = '/Users/lert-hg/Documents/PhD/reinforcement/DRL/content/CTU_Images'
-DATASET_SPLIT_DIR= abspath(join(dirname(__file__), '../../content/dataset_split'))
-CTU_IMAGE_DIR = abspath(join(dirname(__file__), '../../content/CTU_Images'))
-CTU_QUANTIZED_DIR = abspath(join(dirname(__file__), '../../content/CTU_quantized'))
-# print(f"DATASET_SPLIT_DIR - {DATASET_SPLIT_DIR}")
+sys.setrecursionlimit(1500)
+print(f"sys.getrecursionlimit() = {sys.getrecursionlimit()}")
 
-CTU_WIDTH = 640
-CTU_HEIGHT = 640
+# DATASET_SPLIT_DIR = abspath(join(dirname(__file__), '../../content/dataset_split'))
+# CTU_IMAGE_DIR = abspath(join(dirname(__file__), '../../content/CTU_Images'))
+
+DATASET_SPLIT_DIR = '/mnt/nas/openImageNet/dataset'
+CTU_IMAGE_DIR ='/mnt/nas/openImageNet/CTU_Images'
+
+CTU_WIDTH = 64
+CTU_HEIGHT = 64
+FILE_LIMIT = 2500 #sys.maxsize
 # TRAIN_MODE="train"
 # TEST_MODE="test"
 # GAME_MODE=TRAIN_MODE
@@ -26,7 +28,7 @@ CTU_HEIGHT = 640
 # Simulate HM - HEVC Software
 class RateControlGame():
     
-    def __init__(self,image_dir,environment,reloadDataset=False):
+    def __init__(self,environment, image_dir=None, reloadDataset=False):
         
         # print(f'image dir:{image_dir}')
         self.image_dir = image_dir
@@ -49,15 +51,21 @@ class RateControlGame():
         self.train = []
         train_dir= DATASET_SPLIT_DIR + "/" + GameMode.TRAIN_MODE.value
         print(f"train_dir : {train_dir}")
+        self.loadTrainData(train_dir)
+        # print(f"self.train {self.train}")
 
+    def loadTrainData(self,train_dir):
+        fileCount = 0
         for (root,dirs,files) in os.walk(train_dir, topdown=True):
             for name in files:
-                filepath = os.path.join(root, name)
-                # print(filepath)
-                self.train.append(filepath)
-        
-        # print(f"train data : {self.train}")
-        print(f"train data")
+                fileCount += 1
+                if fileCount <= FILE_LIMIT:
+                    filepath = os.path.join(root, name)
+                    self.train.append(filepath)
+                else:
+                    print(f"Load train {len(self.train)} files")
+                    return
+        print(f"Load train {len(self.train)} files")
 
     def start_game(self,agent_round):
         print("Game - Do start game!")

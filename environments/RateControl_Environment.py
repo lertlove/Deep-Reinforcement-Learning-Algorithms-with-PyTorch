@@ -21,13 +21,12 @@ GAME_MODE=GameMode.TRAIN_MODE
 
 SOURCE_DIR = abspath(join(dirname(__file__), '../content/dataset'))
 
-
 class RateControl_Environment(gym.Env):
     environment_name = "Rate Control Environment"
 
     def __init__(self, environment_dimension=256, deterministic=False):
         
-        self.game = RateControlGame(SOURCE_DIR,self)
+        self.game = RateControlGame(self,SOURCE_DIR)
         
         # actions list = number of qp levels 
         self.action_space = spaces.Discrete(NUM_QP_LEVELS)
@@ -93,7 +92,11 @@ class RateControl_Environment(gym.Env):
             state = self.state
 
         print(f"Environment - onRequestAction state : {state}")
-        action = self.onRequestAction(state)
+        if self.remaining_bit > 0:
+            action = self.onRequestAction(state)
+        else:
+            action = 0 #lowest qp for jpeg encoding (qp =action +1)
+
         print(f"{self.current_ctu} - select action - {action}")
         assert action < NUM_QP_LEVELS , "You picked an invalid action"
         return action
@@ -145,7 +148,7 @@ class RateControl_Environment(gym.Env):
         # m_dPicRdCost     += pCtu->getTotalCost();
         # m_uiPicDist      += pCtu->getTotalDistortion();
         self.current_ctu = self.current_ctu + 1
-        self.reward = -self.currentMSE
+        self.reward = 1/self.currentMSE if self.currentMSE >= 0.001 else 1000 
 
         self.remaining_bit -= self.currentBitUsed
         self.percent_bit_balance = self.remaining_bit/self.total_target_bit
@@ -188,8 +191,8 @@ class RateControl_Environment(gym.Env):
 
 
 # if __name__ == '__main__':
-#     image_dir = SOURCE_DIR
-#     environment = RateControl_Environment()
+    # image_dir = SOURCE_DIR
+    # environment = RateControl_Environment()
 #     environment.reset()
 #     environment.start_game()
 #     print("Run game environment >>>")

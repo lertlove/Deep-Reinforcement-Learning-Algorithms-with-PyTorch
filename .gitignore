@@ -28,3 +28,4 @@ launch.json
 dataset
 content
 *.pkl
+games/utils/meta/meta_*.txt

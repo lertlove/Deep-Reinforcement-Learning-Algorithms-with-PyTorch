@@ -12,6 +12,7 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=video,compute,utility
     volumes:
       - "./:/src:cached"
+      - "/mnt/nas/openImageNet:/mnt/nas/openImageNet"
       - $HOME/.Xauthority:/root/.Xauthority 
       - /tmp/.X11-unix/:/tmp/.X11-unix
     ports:

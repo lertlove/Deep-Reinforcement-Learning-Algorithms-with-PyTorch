@@ -77,7 +77,6 @@ def computeMSEFromFiles(originalFile,compressFile):
     return computeMSE(original,compressed)
 
 def computeMSE(original,compressed):
-    
     mse = np.mean((original - compressed) ** 2)
     print(f"MSE value is {mse}")
     return mse
@@ -149,9 +148,22 @@ def doAllFilesInDir(directory):
         if filename.endswith(".jpg") or filename.endswith(".png"):
             filepath = os.path.join(directory, filename)
             # print(filepath)
-            computeVariance(filepath)
+            # computeVariance(filepath)
         else:
             continue
+
+def doLimitFilesInDir(directory,limit,_callback):
+    fileCount = 0
+    for (root,dirs,files) in os.walk(directory, topdown=True):
+        for name in files:
+            fileCount += 1
+            if fileCount <= limit:
+                filepath = os.path.join(root, name)
+                # do something
+                _callback(filepath)
+            else:
+                print(f"Load {fileCount-1} files")
+                return
 
 def createTargetDir(dirName):
     try:

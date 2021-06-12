@@ -12,11 +12,11 @@ from agents.DQN_agents.Passive_DQN import Passive_DQN
 config = Config()
 config.seed = 1
 config.environment = RateControl_Environment(256)
-config.num_episodes_to_run = 80
-config.file_to_save_data_results = "rc_models/Rate_Control_Results_Data.pkl"
-config.file_to_save_results_graph = "rc_models/Rate_Control_Results_Graph.png"
+config.num_episodes_to_run = 1000
+config.file_to_save_data_results = "rc_models/rc_openImageNet_1000_3-64_64.pkl"
+config.file_to_save_results_graph = "rc_models/rc_openImageNet_graph-1000_3-64_64.png"
 config.show_solution_score = False
-config.visualise_individual_results = False
+config.visualise_individual_results = True
 config.visualise_overall_agent_results = True
 config.standard_deviation_results = 1.0
 config.runs_per_agent = 3
@@ -35,7 +35,7 @@ config.hyperparameters = {
         "discount_rate": 0.999,
         "incremental_td_error": 1e-8,
         "update_every_n_steps": 1,
-        "linear_hidden_units": [64, 64],
+        "linear_hidden_units": [400, 300],
         "final_layer_activation": None,
         "y_range": (-1, 14),
         "batch_norm": False,

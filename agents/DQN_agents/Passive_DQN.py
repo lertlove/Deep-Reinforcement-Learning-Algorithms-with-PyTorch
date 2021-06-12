@@ -43,3 +43,4 @@ class Passive_DQN(DQN):
     def start(self):
         """Passive Agent will trigger start signal to the game environment, and wait for the game response to train the nn model online"""
         self.environment.start()
+    
