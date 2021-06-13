@@ -183,7 +183,7 @@ class Base_Agent(object):
         self.episode_next_states.append(self.next_state)
         self.episode_dones.append(self.done)
 
-    def run_n_episodes(self, num_episodes=None, show_whether_achieved_goal=True, save_and_print_results=True, agent_round=None):
+    def run_n_episodes(self, num_episodes=None, show_whether_achieved_goal=True, save_and_print_results=True, agent_round=0):
         """Runs game to completion n times and then summarises results and saves model (if asked to)"""
         if num_episodes is None: num_episodes = self.config.num_episodes_to_run
         start = time.time()
@@ -225,6 +225,7 @@ class Base_Agent(object):
         if self.rolling_results[-1] > self.max_rolling_score_seen:
             if len(self.rolling_results) > self.rolling_score_window:
                 self.max_rolling_score_seen = self.rolling_results[-1]
+                if self.config.save_model: self.locally_save_policy()
 
     def print_rolling_result(self):
         """Prints out the latest episode results"""

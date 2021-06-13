@@ -97,7 +97,7 @@ class DQN(Base_Agent):
 
     def locally_save_policy(self):
         """Saves the policy"""
-        torch.save(self.q_network_local.state_dict(), "Models/{}_local_network.pt".format(self.agent_name))
+        torch.save(self.q_network_local.state_dict(), "Models/{}_local_network-{}_{}.pt".format(self.agent_name, self.episode_number, self.max_rolling_score_seen))
 
     def time_for_q_network_to_learn(self):
         """Returns boolean indicating whether enough steps have been taken for learning to begin and there are
