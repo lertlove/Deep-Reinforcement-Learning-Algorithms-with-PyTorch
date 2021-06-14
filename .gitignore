@@ -29,3 +29,6 @@ dataset
 content
 *.pkl
 games/utils/meta/meta_*.txt
+results/Models/*.pt
+results/Models/bak/*
+results/rc_models/*.png

@@ -20,7 +20,7 @@ CTU_IMAGE_DIR ='/mnt/nas/openImageNet/CTU_Images'
 
 CTU_WIDTH = 64
 CTU_HEIGHT = 64
-FILE_LIMIT = 2500 #sys.maxsize
+FILE_LIMIT = sys.maxsize
 # TRAIN_MODE="train"
 # TEST_MODE="test"
 # GAME_MODE=TRAIN_MODE
