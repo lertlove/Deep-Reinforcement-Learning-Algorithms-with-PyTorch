@@ -24,6 +24,7 @@ config.use_GPU = True
 config.overwrite_existing_results_file = False
 config.randomise_random_seed = True
 config.save_model = True
+config.interval_save_file = 500
 
 
 config.hyperparameters = {
