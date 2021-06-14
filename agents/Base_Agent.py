@@ -42,7 +42,7 @@ class Base_Agent(object):
         self.visualise_results_boolean = config.visualise_individual_results
         self.global_step_number = 0
         self.turn_off_exploration = False
-        
+        self.start = time.time()
         self.passive = False
 
         gym.logger.set_level(40)  # stops it from printing an unnecessary warning
@@ -186,15 +186,15 @@ class Base_Agent(object):
     def run_n_episodes(self, num_episodes=None, show_whether_achieved_goal=True, save_and_print_results=True, agent_round=0):
         """Runs game to completion n times and then summarises results and saves model (if asked to)"""
         if num_episodes is None: num_episodes = self.config.num_episodes_to_run
-        start = time.time()
+        self.start = time.time()
         while self.episode_number < num_episodes:
             self.reset_game()
             if self.passive == True:
                 self.environment.start_game(agent_round)
             else:
                 self.step()
-            if save_and_print_results: self.save_and_print_result()
-        time_taken = time.time() - start
+            if save_and_print_results: self.save_and_print_result(agent_round)
+        time_taken = time.time() - self.start
         if show_whether_achieved_goal: self.show_whether_achieved_goal()
         if self.config.save_model: self.locally_save_policy()
         return self.game_full_episode_scores, self.rolling_results, time_taken
@@ -206,16 +206,26 @@ class Base_Agent(object):
         if self.hyperparameters["clip_rewards"]: self.reward =  max(min(self.reward, 1.0), -1.0)
 
 
-    def save_and_print_result(self):
+    def save_and_print_result(self,agent_round=0):
         """Saves and prints results of the game"""
-        self.save_result()
+        self.save_result(agent_round)
         self.print_rolling_result()
 
-    def save_result(self):
+    def save_result(self,agent_round=0):
         """Saves the result of an episode of the game"""
         self.game_full_episode_scores.append(self.total_episode_score_so_far)
         self.rolling_results.append(np.mean(self.game_full_episode_scores[-1 * self.rolling_score_window:]))
         self.save_max_result_seen()
+        if self.config.interval_save_file is not None:
+            if self.episode_number%self.config.interval_save_file == 0 and self.config.file_to_save_data_results: 
+                results_path = os.path.splitext(self.config.file_to_save_data_results)[0]
+                results_path = f"{results_path}-round_{agent_round}-ep_{self.episode_number}.pkl"
+                time_taken = time.time() - self.start
+                results = {}
+                agent_results = []
+                agent_results.append([self.game_full_episode_scores, self.rolling_results,  len(self.rolling_results), -1 * max(self.rolling_results), time_taken])
+                results[self.agent_name] = agent_results
+                self.save_obj(results, results_path)
 
     def save_max_result_seen(self):
         """Updates the best episode result seen so far"""
