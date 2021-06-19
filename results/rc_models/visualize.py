@@ -6,8 +6,9 @@ sys.path.insert(0, abspath(join(dirname(__file__), '../../')))
 print(sys.path)
 from agents import Trainer
 from utilities.data_structures.Config import Config
-PICKLE_FILE = "rc_openImageNet_1000_3-64_64-round_3.pkl"
 
+PICKLE_FILE = "rc_openImageNet_100_1-640_640-round_1-ep_51.pkl" if len(sys.argv) <= 1 else sys.argv[1]
+print(f"PICKLE_FILE - {PICKLE_FILE}")
 
 config = Config()
 config.visualise_overall_agent_results = True
@@ -15,7 +16,6 @@ config.standard_deviation_results = 1.0
 config.use_GPU = True
 config.overwrite_existing_results_file = False
 config.randomise_random_seed = True
-
 
 trainer = Trainer.Trainer(config,None)
 

@@ -32,3 +32,5 @@ games/utils/meta/meta_*.txt
 results/Models/*.pt
 results/Models/bak/*
 results/rc_models/*.png
+results/Models/exp*
+results/rc_models/exp*

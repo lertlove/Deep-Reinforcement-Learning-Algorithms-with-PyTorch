@@ -5,6 +5,7 @@ import gym
 import random
 import numpy as np
 import torch
+import pickle
 import time
 # import tensorflow as tf
 from nn_builder.pytorch.NN import NN
@@ -44,6 +45,7 @@ class Base_Agent(object):
         self.turn_off_exploration = False
         self.start = time.time()
         self.passive = False
+        self.agent_round = 0
 
         gym.logger.set_level(40)  # stops it from printing an unnecessary warning
         self.log_game_info()
@@ -185,18 +187,21 @@ class Base_Agent(object):
 
     def run_n_episodes(self, num_episodes=None, show_whether_achieved_goal=True, save_and_print_results=True, agent_round=0):
         """Runs game to completion n times and then summarises results and saves model (if asked to)"""
+        self.agent_round = agent_round
         if num_episodes is None: num_episodes = self.config.num_episodes_to_run
         self.start = time.time()
         while self.episode_number < num_episodes:
             self.reset_game()
             if self.passive == True:
-                self.environment.start_game(agent_round)
+                self.environment.start_game(self.agent_round)
             else:
                 self.step()
-            if save_and_print_results: self.save_and_print_result(agent_round)
+            if save_and_print_results: self.save_and_print_result()
         time_taken = time.time() - self.start
         if show_whether_achieved_goal: self.show_whether_achieved_goal()
-        if self.config.save_model: self.locally_save_policy()
+        if self.config.save_model: 
+            results_path = self.save_result_to_file()
+            self.locally_save_policy(results_path)
         return self.game_full_episode_scores, self.rolling_results, time_taken
 
     def conduct_action(self, action):
@@ -205,27 +210,39 @@ class Base_Agent(object):
         self.total_episode_score_so_far += self.reward
         if self.hyperparameters["clip_rewards"]: self.reward =  max(min(self.reward, 1.0), -1.0)
 
-
-    def save_and_print_result(self,agent_round=0):
+    def save_and_print_result(self):
         """Saves and prints results of the game"""
-        self.save_result(agent_round)
+        self.save_result()
         self.print_rolling_result()
 
-    def save_result(self,agent_round=0):
+    def save_result(self):
         """Saves the result of an episode of the game"""
         self.game_full_episode_scores.append(self.total_episode_score_so_far)
         self.rolling_results.append(np.mean(self.game_full_episode_scores[-1 * self.rolling_score_window:]))
-        self.save_max_result_seen()
+        
         if self.config.interval_save_file is not None:
             if self.episode_number%self.config.interval_save_file == 0 and self.config.file_to_save_data_results: 
-                results_path = os.path.splitext(self.config.file_to_save_data_results)[0]
-                results_path = f"{results_path}-round_{agent_round}-ep_{self.episode_number}.pkl"
-                time_taken = time.time() - self.start
-                results = {}
-                agent_results = []
-                agent_results.append([self.game_full_episode_scores, self.rolling_results,  len(self.rolling_results), -1 * max(self.rolling_results), time_taken])
-                results[self.agent_name] = agent_results
-                self.save_obj(results, results_path)
+                self.save_result_to_file()
+        
+        self.save_max_result_seen()
+    
+    def save_result_to_file(self):
+        results_path = os.path.splitext(self.config.file_to_save_data_results)[0]
+        results_path = f"{results_path}-round_{self.agent_round}-ep_{self.episode_number}.pkl"
+        time_taken = time.time() - self.start
+        results = {}
+        agent_results = []
+        agent_results.append([self.game_full_episode_scores, self.rolling_results,  len(self.rolling_results), -1 * max(self.rolling_results), time_taken])
+        results[self.agent_name] = agent_results
+        self.save_obj(results, results_path)
+        return results_path
+
+    def save_obj(self, obj, name):
+        """Saves given object as a pickle file"""
+        if name[-4:] != ".pkl":
+            name += ".pkl"
+        with open(name, 'wb') as f:
+            pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
     def save_max_result_seen(self):
         """Updates the best episode result seen so far"""
@@ -235,7 +252,9 @@ class Base_Agent(object):
         if self.rolling_results[-1] > self.max_rolling_score_seen:
             if len(self.rolling_results) > self.rolling_score_window:
                 self.max_rolling_score_seen = self.rolling_results[-1]
-                if self.config.save_model: self.locally_save_policy()
+                if self.config.save_model: 
+                    results_path = self.save_result_to_file()
+                    self.locally_save_policy(results_path)
 
     def print_rolling_result(self):
         """Prints out the latest episode results"""

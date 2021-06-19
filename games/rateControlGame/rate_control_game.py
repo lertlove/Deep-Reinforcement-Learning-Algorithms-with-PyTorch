@@ -18,8 +18,6 @@ print(f"sys.getrecursionlimit() = {sys.getrecursionlimit()}")
 DATASET_SPLIT_DIR = '/mnt/nas/openImageNet/dataset'
 CTU_IMAGE_DIR ='/mnt/nas/openImageNet/CTU_Images'
 
-CTU_WIDTH = 64
-CTU_HEIGHT = 64
 FILE_LIMIT = sys.maxsize
 # TRAIN_MODE="train"
 # TEST_MODE="test"
@@ -28,13 +26,13 @@ FILE_LIMIT = sys.maxsize
 # Simulate HM - HEVC Software
 class RateControlGame():
     
-    def __init__(self,environment, image_dir=None, reloadDataset=False):
+    def __init__(self, environment, image_dir=None, reloadDataset=False):
         
         # print(f'image dir:{image_dir}')
         self.image_dir = image_dir
-        self.episode_step = -1
         self.agent_round = 0
         self.environment = environment
+        self.episode_step = -1
         self.mode = None
         self.imageFile = None
         self.ctuImages = []
@@ -43,6 +41,9 @@ class RateControlGame():
         self.ctuShapes = []
         self.current_ctu = 0
         self.ctuSplitFolder = ""
+
+        self.ctu_width = self.environment.config.ctu_width
+        self.ctu_height = self.environment.config.ctu_height
 
         # prepare dataset
         if reloadDataset==True:
@@ -53,6 +54,9 @@ class RateControlGame():
         print(f"train_dir : {train_dir}")
         self.loadTrainData(train_dir)
         # print(f"self.train {self.train}")
+
+    def start_from_episode(self, episode):
+        self.episode_step = episode 
 
     def loadTrainData(self,train_dir):
         fileCount = 0
@@ -68,9 +72,11 @@ class RateControlGame():
         print(f"Load train {len(self.train)} files")
 
     def start_game(self,agent_round):
-        print("Game - Do start game!")
+        
         self.episode_step = self.episode_step + 1
         self.agent_round = agent_round
+        print(f"Game - Do start game at agent_round {self.agent_round} from episode : {self.episode_step}")
+        
         return self.doCompressCtu()
     
     def finishStep(self):
@@ -119,8 +125,8 @@ class RateControlGame():
         filesize = os.path.getsize(self.imageFile)*8 # in bit usage
         print(f"filesize = {filesize}")
         fileName = Path(self.imageFile).stem
-        self.ctuSplitFolder = f"{CTU_IMAGE_DIR}/{fileName}_split_{CTU_WIDTH}_{CTU_HEIGHT}"
-        self.ctuImages = quant.splitImageIntoTiles(self.imageFile,CTU_WIDTH,CTU_HEIGHT,CTU_IMAGE_DIR)
+        self.ctuSplitFolder = f"{CTU_IMAGE_DIR}/{fileName}_split_{self.ctu_width}_{self.ctu_height}"
+        self.ctuImages = quant.splitImageIntoTiles(self.imageFile,self.ctu_width,self.ctu_height,CTU_IMAGE_DIR)
 
         self.ctuVariants.clear()
         self.ctuShapes.clear()

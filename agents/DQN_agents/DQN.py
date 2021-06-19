@@ -8,6 +8,7 @@ import numpy as np
 from agents.Base_Agent import Base_Agent
 from exploration_strategies.Epsilon_Greedy_Exploration import Epsilon_Greedy_Exploration
 from utilities.data_structures.Replay_Buffer import Replay_Buffer
+import pickle
 
 class DQN(Base_Agent):
     """A deep Q learning agent"""
@@ -18,7 +19,40 @@ class DQN(Base_Agent):
         self.q_network_local = self.create_NN(input_dim=self.state_size, output_dim=self.action_size)
         self.q_network_optimizer = optim.Adam(self.q_network_local.parameters(),
                                               lr=self.hyperparameters["learning_rate"], eps=1e-4)
+        
+        if self.config.load_model_file is not None:
+            if self.config.save_and_load_meta_state:
+                
+                save_data = self.load_model_from_file(self.config.load_model_file)
+                self.q_network_local.load_state_dict(save_data["model_state_dict"])                
+                self.q_network_optimizer.load_state_dict(save_data["optimizer_state_dict"])
+                self.episode_number = save_data["episode"]
+                self.environment.start_from_episode(self.episode_number)
+
+                # load result from file
+                preexisting_results = self.load_obj(save_data["results_path"])
+                all_results = preexisting_results[self.agent_name]
+                results = all_results[len(all_results)-1] #get last round results
+                
+                self.game_full_episode_scores = results[0]
+                self.rolling_results = results[1]
+                self.max_rolling_score_seen = save_data["max_rolling_score_seen"]
+                self.max_episode_score_seen = save_data["max_episode_score_seen"]
+
+                print(f"start from episode : {self.episode_number}")
+                print(f"load model from file : {self.config.load_model_file}")
+
+            else:
+                print(f"load model from file : {self.config.load_model_file}")
+                model_file = self.load_model_from_file(self.config.load_model_file)
+                self.q_network_local.load_state_dict(model_file)
+            
         self.exploration_strategy = Epsilon_Greedy_Exploration(config)
+
+    def load_obj(self, name):
+        """Loads a pickle file object"""
+        with open(name, 'rb') as f:
+            return pickle.load(f)
 
     def reset_game(self):
         super(DQN, self).reset_game()
@@ -95,9 +129,32 @@ class DQN(Base_Agent):
         Q_expected = self.q_network_local(states).gather(1, actions.long()) #must convert actions to long so can be used as index
         return Q_expected
 
-    def locally_save_policy(self):
+    def locally_save_policy(self,results_path=None):
         """Saves the policy"""
-        torch.save(self.q_network_local.state_dict(), "Models/{}_local_network-{}_{}.pt".format(self.agent_name, self.episode_number, self.max_rolling_score_seen))
+        
+        if self.config.save_and_load_meta_state:
+            data_to_save = {
+                'episode': self.episode_number,
+                'model_state_dict': self.q_network_local.state_dict(),
+                'optimizer_state_dict': self.q_network_optimizer.state_dict(),
+                'results_path': results_path,
+                'max_rolling_score_seen': self.max_rolling_score_seen,
+                'max_episode_score_seen': self.max_episode_score_seen
+            }
+            print(f"locally_save_policy : {results_path}")
+            
+            torch.save(data_to_save, "Models/{}_local_network-{}_{:.2f}.pt".format(self.agent_name, self.episode_number, self.max_rolling_score_seen))
+        else:
+            torch.save(self.q_network_local.state_dict(), "Models/{}_local_network-{}_{:.2f}.pt".format(self.agent_name, self.episode_number, self.max_rolling_score_seen))
+
+    def load_model_from_file(self,load_model_file):
+        """Load the policy"""
+        return torch.load(load_model_file, map_location=torch.device(self.device))
+        # if self.config.use_GPU:
+        #     # Load all tensors onto GPU 0
+        #     return torch.load(load_model_file, map_location=lambda storage, loc: storage.cuda(0))
+        # else:
+        #     return torch.load(load_model_file)
 
     def time_for_q_network_to_learn(self):
         """Returns boolean indicating whether enough steps have been taken for learning to begin and there are

@@ -11,12 +11,14 @@ from agents.DQN_agents.Passive_DQN import Passive_DQN
 
 config = Config()
 config.seed = 1
-config.environment = RateControl_Environment(256)
-config.num_episodes_to_run = 3000
-config.file_to_save_data_results = "rc_models/rc_openImageNet_3000_1-64_64.pkl"
-config.file_to_save_results_graph = "rc_models/rc_openImageNet_graph-3000_1-64_64.png"
+config.num_episodes_to_run = 10000
+config.ctu_width = 64
+config.ctu_height = 64
+
+config.file_to_save_data_results = f"/src/results/rc_models/rc_openImageNet_{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.pkl"
+config.file_to_save_results_graph = f"/src/results/rc_models/rc_openImageNet_graph-{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.png"
 config.show_solution_score = False
-config.visualise_individual_results = True
+config.visualise_individual_results = False
 config.visualise_overall_agent_results = True
 config.standard_deviation_results = 1.0
 config.runs_per_agent = 1
@@ -24,8 +26,12 @@ config.use_GPU = True
 config.overwrite_existing_results_file = False
 config.randomise_random_seed = True
 config.save_model = True
-config.interval_save_file = 500
 
+config.save_and_load_meta_state = True
+config.interval_save_file = 500
+# config.load_model_file = "/src/results/Models/Passive_DQN_local_network-50_1001.49.pt"
+
+config.environment = RateControl_Environment(config, 256)
 
 config.hyperparameters = {
     "Passive_DQN_Agents": {

@@ -24,8 +24,9 @@ SOURCE_DIR = abspath(join(dirname(__file__), '../content/dataset'))
 class RateControl_Environment(gym.Env):
     environment_name = "Rate Control Environment"
 
-    def __init__(self, environment_dimension=256, deterministic=False):
+    def __init__(self, config=None, environment_dimension=256, deterministic=False):
         
+        self.config = config
         self.game = RateControlGame(self,SOURCE_DIR)
         
         # actions list = number of qp levels 
@@ -77,6 +78,9 @@ class RateControl_Environment(gym.Env):
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
+
+    def start_from_episode(self, episode):
+        self.game.start_from_episode(episode)
 
     def start_game(self, agent_round):
         # do start game
