@@ -31,7 +31,7 @@ import PIL
 # except FileExistsError:
 #     print("Directory " , dirName ,  " already exists")
 
-def doQuantize(filepath, qp, dest):
+def doQuantize(filepath, qp, dest, useSSD=False):
 
     fileName = Path(filepath).stem
     image = Image.open(filepath) 
@@ -49,7 +49,7 @@ def doQuantize(filepath, qp, dest):
     img.save(quantizedFile, 'jpeg')
     filesize = os.path.getsize(quantizedFile)*8 # in bit usage
 
-    mse = computeMSEFromFiles(filepath, quantizedFile)
+    mse = computeMSEFromFiles(filepath, quantizedFile, useSSD)
 
     return filesize, mse
     # # to show specified image 
@@ -70,16 +70,22 @@ def computePSNR(originalFile,compressFile):
      value = PSNR(original, compressed)
      print(f"{compressFile} - PSNR value is {value} dB")
 
-def computeMSEFromFiles(originalFile,compressFile):
+def computeMSEFromFiles(originalFile,compressFile,useSSD=False):
     original = cv2.imread(originalFile)
     compressed = cv2.imread(compressFile, 1)
     
-    return computeMSE(original,compressed)
+    return computeMSE(original,compressed,useSSD)
 
-def computeMSE(original,compressed):
-    mse = np.mean((original - compressed) ** 2)
-    print(f"MSE value is {mse}")
-    return mse
+def computeMSE(original,compressed,useSSD=False):
+
+    err = np.sum((original.astype ("float") - compressed.astype ("float")) ** 2)
+    if useSSD:
+        print(f"SSD value is {err}")
+        return err
+    else:
+        err/= float (original.shape [0] * original.shape [1])
+        print(f"MSE value is {err}")
+        return err
 
 def computeVariance(fileName):
     image = cv2.imread(fileName,0)

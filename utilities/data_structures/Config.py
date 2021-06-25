@@ -21,5 +21,7 @@ class Config(object):
         
         self.load_model_file = None
         self.save_and_load_meta_state = True
-        self.interval_save_file = None
+        self.interval_save_result = None
+        self.use_ssd_insteadof_mse = False
+        self.trials = 50
 

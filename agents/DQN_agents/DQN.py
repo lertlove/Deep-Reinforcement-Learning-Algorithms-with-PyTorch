@@ -1,5 +1,6 @@
 from collections import Counter
 
+import os
 import torch
 import random
 import torch.optim as optim
@@ -132,6 +133,9 @@ class DQN(Base_Agent):
     def locally_save_policy(self,results_path=None):
         """Saves the policy"""
         
+        policy_path = os.path.splitext(self.config.file_to_save_policy)[0]
+        policy_path = f"{policy_path}-{self.agent_name}-ep_{self.episode_number}-score_{self.max_rolling_score_seen:.2f}.pt"
+        
         if self.config.save_and_load_meta_state:
             data_to_save = {
                 'episode': self.episode_number,
@@ -141,11 +145,12 @@ class DQN(Base_Agent):
                 'max_rolling_score_seen': self.max_rolling_score_seen,
                 'max_episode_score_seen': self.max_episode_score_seen
             }
-            print(f"locally_save_policy : {results_path}")
-            
-            torch.save(data_to_save, "Models/{}_local_network-{}_{:.2f}.pt".format(self.agent_name, self.episode_number, self.max_rolling_score_seen))
+            print(f"locally_save_policy results path : {results_path}")
+            torch.save(data_to_save, policy_path)
+            # torch.save(data_to_save, "Models/{}_local_network-{}_{:.2f}.pt".format(self.agent_name, self.episode_number, self.max_rolling_score_seen))
+
         else:
-            torch.save(self.q_network_local.state_dict(), "Models/{}_local_network-{}_{:.2f}.pt".format(self.agent_name, self.episode_number, self.max_rolling_score_seen))
+            torch.save(self.q_network_local.state_dict(), policy_path)
 
     def load_model_from_file(self,load_model_file):
         """Load the policy"""

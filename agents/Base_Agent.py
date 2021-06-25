@@ -220,9 +220,14 @@ class Base_Agent(object):
         self.game_full_episode_scores.append(self.total_episode_score_so_far)
         self.rolling_results.append(np.mean(self.game_full_episode_scores[-1 * self.rolling_score_window:]))
         
-        if self.config.interval_save_file is not None:
-            if self.episode_number%self.config.interval_save_file == 0 and self.config.file_to_save_data_results: 
+        if self.config.interval_save_result is not None:
+            if self.episode_number%self.config.interval_save_result == 0 and self.config.file_to_save_data_results: 
                 self.save_result_to_file()
+        
+        if self.config.interval_save_policy is not None:
+            if self.episode_number%self.config.interval_save_policy == 0 and self.config.file_to_save_data_results: 
+                results_path = self.save_result_to_file()
+                self.locally_save_policy(results_path)
         
         self.save_max_result_seen()
     

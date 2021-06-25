@@ -53,7 +53,7 @@ class RateControl_Environment(gym.Env):
 
         self.seed()
         self.reward_threshold = 0.0
-        self.trials = 50
+        self.trials = self.config.trials
         self.max_episode_steps = environment_dimension #number of ctus?
         self.id = "Rate Control"
         self.environment_dimension = environment_dimension
@@ -152,7 +152,9 @@ class RateControl_Environment(gym.Env):
         # m_dPicRdCost     += pCtu->getTotalCost();
         # m_uiPicDist      += pCtu->getTotalDistortion();
         self.current_ctu = self.current_ctu + 1
-        self.reward = 1/self.currentMSE if self.currentMSE >= 0.001 else 1000 
+        
+        # self.reward = 1/self.currentMSE if self.currentMSE >= 0.001 else 1000 
+        self.reward = -self.currentMSE
 
         self.remaining_bit -= self.currentBitUsed
         self.percent_bit_balance = self.remaining_bit/self.total_target_bit

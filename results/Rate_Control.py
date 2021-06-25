@@ -11,12 +11,12 @@ from agents.DQN_agents.Passive_DQN import Passive_DQN
 
 config = Config()
 config.seed = 1
-config.num_episodes_to_run = 10000
+config.num_episodes_to_run = 10
 config.ctu_width = 64
 config.ctu_height = 64
 
-config.file_to_save_data_results = f"/src/results/rc_models/rc_openImageNet_{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.pkl"
-config.file_to_save_results_graph = f"/src/results/rc_models/rc_openImageNet_graph-{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.png"
+config.file_to_save_data_results = f"/src/results/rc_results/rc_openImageNet_{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.pkl"
+config.file_to_save_results_graph = f"/src/results/rc_results/rc_openImageNet_graph-{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.png"
 config.show_solution_score = False
 config.visualise_individual_results = False
 config.visualise_overall_agent_results = True
@@ -27,9 +27,14 @@ config.overwrite_existing_results_file = False
 config.randomise_random_seed = True
 config.save_model = True
 
+config.trials = 50
+config.use_ssd_insteadof_mse = True
 config.save_and_load_meta_state = True
-config.interval_save_file = 500
-# config.load_model_file = "/src/results/Models/Passive_DQN_local_network-50_1001.49.pt"
+config.interval_save_result = 500
+config.interval_save_policy = 500
+config.file_to_save_policy = f"/src/results/rc_models/Policy_{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.pt"
+# config.load_model_file = "/src/results/rc_models/Policy_30_1-640_640-Passive_DQN-ep_30-score_-284.00.pt"
+
 
 config.environment = RateControl_Environment(config, 256)
 

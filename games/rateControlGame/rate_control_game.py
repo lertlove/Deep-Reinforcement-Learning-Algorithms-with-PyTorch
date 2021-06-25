@@ -93,7 +93,7 @@ class RateControlGame():
             print(f"doCompressCtu filepath : {filepath}")
             print(f"doCompressCtu selectedQP : {selectedQP}")
             
-            bitused, mse = quant.doQuantize(filepath,selectedQP,destDir)
+            bitused, mse = quant.doQuantize(filepath,selectedQP,destDir, self.environment.config.use_ssd_insteadof_mse)
         else:
             originalFile = self.imageFile
             mergeImage = quant.mergeImages(self.imageFile,destDir)

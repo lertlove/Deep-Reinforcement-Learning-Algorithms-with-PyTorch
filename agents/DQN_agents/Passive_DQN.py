@@ -24,6 +24,11 @@ class Passive_DQN(DQN):
     #     super(Passive_DQN, self).reset_game()
     #     self.update_learning_rate(self.hyperparameters["learning_rate"], self.q_network_optimizer)
 
+    def pick_action(self, state=None):
+        self.action = super().pick_action(state)
+        print(f"Agent - pick action - {self.action}")
+        return self.action
+
     def step(self):
         """Runs a step within a game including a learning step if required"""
         if not self.done:
@@ -43,3 +48,14 @@ class Passive_DQN(DQN):
     def start(self):
         """Passive Agent will trigger start signal to the game environment, and wait for the game response to train the nn model online"""
         self.environment.start()
+
+    def save_result(self):
+        """Saves the result of an episode of the game"""
+        self.game_full_episode_scores.append(self.total_episode_score_so_far/self.environment.total_area)
+        self.rolling_results.append(np.mean(self.game_full_episode_scores[-1 * self.rolling_score_window:]))
+        
+        if self.config.interval_save_result is not None:
+            if self.episode_number%self.config.interval_save_result == 0 and self.config.file_to_save_data_results: 
+                self.save_result_to_file()
+        
+        self.save_max_result_seen()
