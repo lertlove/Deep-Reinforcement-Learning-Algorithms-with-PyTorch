@@ -113,10 +113,10 @@ class Passive_SAC_Discrete(SAC):
             self.global_step_number += 1
             print(f"self.total_episode_score_so_far = {self.total_episode_score_so_far}")
             self.environment.finishStep()
-            print(f"Agent - done = {self.done} finish step")
+            # print(f"Agent - done = {self.done} finish step")
         else:
             if eval_ep: self.print_summary_of_latest_evaluation_episode()
-            print(f"Agent - done = {self.done} finish episode")
+            # print(f"Agent - done = {self.done} finish episode")
             self.episode_number += 1
 
     def pick_action(self, state=None, isRemaining=True):

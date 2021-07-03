@@ -218,7 +218,7 @@ class Base_Agent(object):
     def save_and_print_result(self):
         """Saves and prints results of the game"""
         self.save_result()
-        # self.print_rolling_result()
+        self.print_rolling_result()
 
     def save_result(self):
         """Saves the result of an episode of the game"""
@@ -273,7 +273,7 @@ class Base_Agent(object):
 
     def print_rolling_result(self):
         """Prints out the latest episode results"""
-        text = """"\r Episode {0}, Score: {3: .2f}, Max score seen: {4: .2f}, Rolling score: {1: .2f}, Max rolling score seen: {2: .2f}"""
+        text = """"\r Episode {0}, Score: {3: .2f}, Max score seen: {4: .2f}, Rolling score: {1: .2f}, Max rolling score seen: {2: .2f} \n"""
         sys.stdout.write(text.format(len(self.game_full_episode_scores), self.rolling_results[-1], self.max_rolling_score_seen,
                                      self.game_full_episode_scores[-1], self.max_episode_score_seen))
         sys.stdout.flush()
@@ -420,6 +420,4 @@ class Base_Agent(object):
     def copy_model_over(from_model, to_model):
         """Copies model parameters from from_model to to_model"""
         for to_model, from_model in zip(to_model.parameters(), from_model.parameters()):
-            to_model.data.copy_(from_model.clone())
-            # if to_model.data_ptr() != from_model.data_ptr():
-            #     to_model.data.copy_(from_model.clone())
+            to_model.data.copy_(from_model.data.clone())
