@@ -8,15 +8,19 @@ from environments.RateControl_Environment import RateControl_Environment
 from agents.Trainer import Trainer
 from utilities.data_structures.Config import Config
 from agents.DQN_agents.Passive_DQN import Passive_DQN
+from agents.actor_critic_agents.Passive_SAC_Discrete import Passive_SAC_Discrete
 
 config = Config()
 config.seed = 1
-config.num_episodes_to_run = 10
+config.num_episodes_to_run = 3000
 config.ctu_width = 64
 config.ctu_height = 64
 
-config.file_to_save_data_results = f"/src/results/rc_results/rc_openImageNet_{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.pkl"
-config.file_to_save_results_graph = f"/src/results/rc_results/rc_openImageNet_graph-{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.png"
+
+config.experiment_name = "exp_4"
+config.results_dir = f"/src/results/rc_results/{config.experiment_name}/"
+config.file_to_save_data_results = f"{config.results_dir}/rc_openImageNet_{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.pkl"
+config.file_to_save_results_graph = f"{config.results_dir}/rc_openImageNet_graph-{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.png"
 config.show_solution_score = False
 config.visualise_individual_results = False
 config.visualise_overall_agent_results = True
@@ -27,12 +31,15 @@ config.overwrite_existing_results_file = False
 config.randomise_random_seed = True
 config.save_model = True
 
+
+config.training_episode_per_eval = 5
 config.trials = 50
 config.use_ssd_insteadof_mse = True
 config.save_and_load_meta_state = True
 config.interval_save_result = 500
 config.interval_save_policy = 500
-config.file_to_save_policy = f"/src/results/rc_models/Policy_{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.pt"
+config.model_dir = f"/src/results/rc_models/{config.experiment_name}/"
+config.file_to_save_policy = f"{config.model_dir}/Policy_{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.pt"
 # config.load_model_file = "/src/results/rc_models/Policy_30_1-640_640-Passive_DQN-ep_30-score_-284.00.pt"
 
 
@@ -55,11 +62,60 @@ config.hyperparameters = {
         "HER_sample_proportion": 0.8,
         "learning_iterations": 1,
         "clip_rewards": False
+    },
+    "Actor_Critic_Agents":  {
+
+        "learning_rate": 0.005,
+        "linear_hidden_units": [20, 10],
+        "final_layer_activation": ["SOFTMAX", None],
+        "gradient_clipping_norm": 5.0,
+        "discount_rate": 0.99,
+        "epsilon_decay_rate_denominator": 1.0,
+        "normalise_rewards": True,
+        "exploration_worker_difference": 2.0,
+        "clip_rewards": False,
+
+        "Actor": {
+            "learning_rate": 0.0003,
+            "linear_hidden_units": [256, 512],
+            "final_layer_activation": "Softmax",
+            "batch_norm": False,
+            "tau": 0.005,
+            "gradient_clipping_norm": 5,
+            "initialiser": "Xavier"
+        },
+
+        "Critic": {
+            "learning_rate": 0.0003,
+            "linear_hidden_units": [256, 512],
+            "final_layer_activation": None,
+            "batch_norm": False,
+            "buffer_size": 1000000,
+            "tau": 0.005,
+            "gradient_clipping_norm": 5,
+            "initialiser": "Xavier"
+        },
+
+        "min_steps_before_learning": 10,
+        "batch_size": 256,
+        "discount_rate": 0.99,
+        "mu": 0.0, #for O-H noise
+        "theta": 0.15, #for O-H noise
+        "sigma": 0.25, #for O-H noise
+        "action_noise_std": 0.2,  # for TD3
+        "action_noise_clipping_range": 0.5,  # for TD3
+        "update_every_n_steps": 1,
+        "learning_updates_per_learning_session": 1,
+        "automatically_tune_entropy_hyperparameter": True,
+        "entropy_term_weight": None,
+        "add_extra_noise": False,
+        "do_evaluation_iterations": True
     }
 }
 
 if __name__== '__main__':
-    AGENTS = [Passive_DQN]
+    # AGENTS = [Passive_DQN]
+    AGENTS = [Passive_SAC_Discrete]
     trainer = Trainer(config, AGENTS)
     trainer.run_games_for_agents()
 

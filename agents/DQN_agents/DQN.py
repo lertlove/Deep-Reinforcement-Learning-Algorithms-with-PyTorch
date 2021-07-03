@@ -132,7 +132,7 @@ class DQN(Base_Agent):
 
     def locally_save_policy(self,results_path=None):
         """Saves the policy"""
-        
+        super().locally_save_policy(results_path)
         policy_path = os.path.splitext(self.config.file_to_save_policy)[0]
         policy_path = f"{policy_path}-{self.agent_name}-ep_{self.episode_number}-score_{self.max_rolling_score_seen:.2f}.pt"
         

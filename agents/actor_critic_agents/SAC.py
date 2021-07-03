@@ -6,10 +6,11 @@ import torch
 import torch.nn.functional as F
 from torch.distributions import Normal
 import numpy as np
+import os
 
 LOG_SIG_MAX = 2
 LOG_SIG_MIN = -20
-TRAINING_EPISODES_PER_EVAL_EPISODE = 10
+# TRAINING_EPISODES_PER_EVAL_EPISODE = 10
 EPSILON = 1e-6
 
 class SAC(Base_Agent):
@@ -59,14 +60,15 @@ class SAC(Base_Agent):
     def save_result(self):
         """Saves the result of an episode of the game. Overriding the method in Base Agent that does this because we only
         want to keep track of the results during the evaluation episodes"""
+        
         if self.episode_number == 1 or not self.do_evaluation_iterations:
             self.game_full_episode_scores.extend([self.total_episode_score_so_far])
             self.rolling_results.append(np.mean(self.game_full_episode_scores[-1 * self.rolling_score_window:]))
             self.save_max_result_seen()
 
-        elif (self.episode_number - 1) % TRAINING_EPISODES_PER_EVAL_EPISODE == 0:
-            self.game_full_episode_scores.extend([self.total_episode_score_so_far for _ in range(TRAINING_EPISODES_PER_EVAL_EPISODE)])
-            self.rolling_results.extend([np.mean(self.game_full_episode_scores[-1 * self.rolling_score_window:]) for _ in range(TRAINING_EPISODES_PER_EVAL_EPISODE)])
+        elif (self.episode_number - 1) % self.config.training_episode_per_eval == 0:
+            self.game_full_episode_scores.extend([self.total_episode_score_so_far for _ in range(self.config.training_episode_per_eval)])
+            self.rolling_results.extend([np.mean(self.game_full_episode_scores[-1 * self.rolling_score_window:]) for _ in range(self.config.training_episode_per_eval)])
             self.save_max_result_seen()
 
     def reset_game(self):
@@ -97,6 +99,8 @@ class SAC(Base_Agent):
         """Picks an action using one of three methods: 1) Randomly if we haven't passed a certain number of steps,
          2) Using the actor in evaluation mode if eval_ep is True  3) Using the actor in training mode if eval_ep is False.
          The difference between evaluation and training mode is that training mode does more exploration"""
+        
+        print(f"eval_ep = {eval_ep}")
         if state is None: state = self.state
         if eval_ep: action = self.actor_pick_action(state=state, eval=True)
         elif self.global_step_number < self.hyperparameters["min_steps_before_learning"]:
@@ -209,3 +213,25 @@ class SAC(Base_Agent):
         print("----------------------------")
         print("Episode score {} ".format(self.total_episode_score_so_far))
         print("----------------------------")
+
+    def locally_save_policy(self,results_path=None):
+        """Saves the policy"""
+        super().locally_save_policy(results_path)
+        policy_path = os.path.splitext(self.config.file_to_save_policy)[0]
+        policy_path = f"{policy_path}-{self.agent_name}-ep_{self.episode_number}-score_{self.max_rolling_score_seen:.2f}.pt"
+        
+        if self.config.save_and_load_meta_state:
+            data_to_save = {
+                'episode': self.episode_number,
+                'model_state_dict': self.critic_local.state_dict(),
+                'optimizer_state_dict': self.critic_optimizer.state_dict(),
+                'results_path': results_path,
+                'max_rolling_score_seen': self.max_rolling_score_seen,
+                'max_episode_score_seen': self.max_episode_score_seen
+            }
+            print(f"locally_save_policy results path : {results_path}")
+            torch.save(data_to_save, policy_path)
+            # torch.save(data_to_save, "Models/{}_local_network-{}_{:.2f}.pt".format(self.agent_name, self.episode_number, self.max_rolling_score_seen))
+
+        else:
+            torch.save(self.critic_local.state_dict(), policy_path)

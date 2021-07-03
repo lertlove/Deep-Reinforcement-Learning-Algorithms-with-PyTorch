@@ -25,4 +25,7 @@ class Config(object):
         self.interval_save_policy = None
         self.use_ssd_insteadof_mse = False
         self.trials = 50
-
+        self.training_episode_per_eval = 10
+        self.experiment_name = "exp_xxx"
+        self.results_dir = f"{self.experiment_name}_results"
+        self.model_dir = f"{self.experiment_name}_models"

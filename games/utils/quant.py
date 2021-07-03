@@ -51,7 +51,7 @@ def doQuantize(filepath, qp, dest, useSSD=False):
 
     mse = computeMSEFromFiles(filepath, quantizedFile, useSSD)
 
-    return filesize, mse
+    return quantizedFile, filesize, mse
     # # to show specified image 
     # img.show() 
   
@@ -99,9 +99,9 @@ def doQP():
     for qp in qpList:
         print(qp)
         # doQuantize(image,qp)
-        fileName = "{}/{}_{}.jpg".format(dirName,targetFile,qp)
+        # fileName = "{}/{}_{}.jpg".format(dirName,targetFile,qp)
         # computeMSEFromFiles(targetFile+".jpg",fileName)
-        computeVariance(fileName)
+        # computeVariance(fileName)
 
 def splitImageIntoTiles(filepath, x, y, dest, forceSplit=False):
     fileName = Path(filepath).stem

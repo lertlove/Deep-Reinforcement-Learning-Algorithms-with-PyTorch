@@ -7,6 +7,11 @@ import numpy as np
 import torch
 import pickle
 import time
+
+from os.path import dirname, join, abspath
+sys.path.insert(0, abspath(join(dirname(__file__), '../games')))
+from utils import quant
+
 # import tensorflow as tf
 from nn_builder.pytorch.NN import NN
 # from tensorboardX import SummaryWriter
@@ -213,7 +218,7 @@ class Base_Agent(object):
     def save_and_print_result(self):
         """Saves and prints results of the game"""
         self.save_result()
-        self.print_rolling_result()
+        # self.print_rolling_result()
 
     def save_result(self):
         """Saves the result of an episode of the game"""
@@ -231,7 +236,12 @@ class Base_Agent(object):
         
         self.save_max_result_seen()
     
+    def locally_save_policy(self,results_path=None):
+        quant.createTargetDir(self.config.model_dir)
+
     def save_result_to_file(self):
+
+        quant.createTargetDir(self.config.results_dir)
         results_path = os.path.splitext(self.config.file_to_save_data_results)[0]
         results_path = f"{results_path}-round_{self.agent_round}-ep_{self.episode_number}.pkl"
         time_taken = time.time() - self.start
@@ -410,4 +420,6 @@ class Base_Agent(object):
     def copy_model_over(from_model, to_model):
         """Copies model parameters from from_model to to_model"""
         for to_model, from_model in zip(to_model.parameters(), from_model.parameters()):
-            to_model.data.copy_(from_model.data.clone())
+            to_model.data.copy_(from_model.clone())
+            # if to_model.data_ptr() != from_model.data_ptr():
+            #     to_model.data.copy_(from_model.clone())

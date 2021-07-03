@@ -44,7 +44,8 @@ class Trainer(object):
             "Model_HRL": "HRL",
             "DIAYN": "DIAYN",
             "Dueling DDQN": "DQN_Agents",
-            "Passive_DQN": "Passive_DQN_Agents"
+            "Passive_DQN": "Passive_DQN_Agents",
+            "Passive_SAC_Discrete": "Actor_Critic_Agents",
         }
         return agent_to_agent_group_dictionary
 
@@ -70,6 +71,7 @@ class Trainer(object):
             "DIAYN": "#F322CD",
             "HRL": "#0E0F0F",
             "Passive_DQN": "#F080B9",
+            "Passive_SAC_Discrete": "#1C8F39", 
         }
         return agent_to_color_dictionary
 

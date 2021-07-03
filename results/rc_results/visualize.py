@@ -7,7 +7,7 @@ print(sys.path)
 from agents import Trainer
 from utilities.data_structures.Config import Config
 
-PICKLE_FILE = "rc_openImageNet_100_1-640_640-round_1-ep_51.pkl" if len(sys.argv) <= 1 else sys.argv[1]
+PICKLE_FILE = "../rc_results_bak/rc_openImageNet_300_1-64_64-round_1-ep_300.pkl" if len(sys.argv) <= 1 else sys.argv[1]
 print(f"PICKLE_FILE - {PICKLE_FILE}")
 
 config = Config()

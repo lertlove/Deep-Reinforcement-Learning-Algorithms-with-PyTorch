@@ -34,3 +34,6 @@ results/Models/bak/*
 results/rc_models/*.png
 results/Models/exp*
 results/rc_models/exp*
+results/*.txt
+results/data_and_graphs/*.png
+results/*_bak

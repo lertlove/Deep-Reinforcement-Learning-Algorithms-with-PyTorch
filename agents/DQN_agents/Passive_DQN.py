@@ -24,8 +24,11 @@ class Passive_DQN(DQN):
     #     super(Passive_DQN, self).reset_game()
     #     self.update_learning_rate(self.hyperparameters["learning_rate"], self.q_network_optimizer)
 
-    def pick_action(self, state=None):
-        self.action = super().pick_action(state)
+    def pick_action(self, state=None, isRemaining=True):
+        if isRemaining:
+            self.action = super().pick_action(state)
+        else:
+            self.action = 0
         print(f"Agent - pick action - {self.action}")
         return self.action
 
@@ -44,10 +47,6 @@ class Passive_DQN(DQN):
         else:
             print(f"Agent - done = {self.done} finish episode")
             self.episode_number += 1
-    
-    def start(self):
-        """Passive Agent will trigger start signal to the game environment, and wait for the game response to train the nn model online"""
-        self.environment.start()
 
     def save_result(self):
         """Saves the result of an episode of the game"""

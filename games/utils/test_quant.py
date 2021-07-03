@@ -1,3 +1,4 @@
+import os
 import quant as q
 from pathlib import Path
 import cv2
@@ -37,7 +38,8 @@ def test_mse():
 def test_show_image():
     filepath = "/mnt/nas/openImageNet/dataset/train/14702abb25310cee.jpg"
     filepath = "/mnt/nas/openImageNet/dataset/train/1470dc1168584d9b.jpg"
-    
+    filepath =  "/mnt/nas/openImageNet/dataset/train/1ebb35691b23f11e.jpg"
+    filepath = "/mnt/nas/openImageNet/dataset/train/53f89061c108bdf9.jpg"
     image = cv2.imread(filepath)
     print(f"image shape = {image.shape}")
     q.showImage("test",image)
@@ -114,6 +116,35 @@ def test_prepare_image():
     
     lf.close()
 
+
+
+def test_binary_search_quant():
+    
+    CTU_IMAGE_DIR = '/mnt/nas/openImageNet/CTU_Images'
+    imageFile = "/mnt/nas/openImageNet/dataset/train/53f89061c108bdf9.jpg"
+    fileName = Path(imageFile).stem
+    ctuSplitFolder = f"{CTU_IMAGE_DIR}/{fileName}_split_64_64"
+    destDir = f"{ctuSplitFolder}/binary_search"
+    q.createTargetDir(destDir)
+
+    filesize = os.path.getsize(imageFile)*8 
+    targetBit = round(filesize*0.6,-4)
+    print(f"targetBit = {targetBit}")
+
+    qp = 4
+    # filesize = 0
+    # quantizedFile, bitused, mse = q.doQuantize(imageFile,qp,destDir,False)
+    # print(f"bitused={bitused}, mse={mse}, quantizedFile={quantizedFile}")
+    # filesize = bitused
+
+    while qp > 1:
+        quantizedFile, bitused, mse = q.doQuantize(imageFile,qp,destDir,False)
+        print(f"qp={qp}, bitused={bitused}, bitErr={targetBit-bitused}, mse={mse}, quantizedFile={quantizedFile}")
+        qp -= 1
+
+
+test_binary_search_quant()
+
 # ctuImages = test_split_to_tile()
 # print(ctuImages)
 # test_quantized()
@@ -121,4 +152,4 @@ def test_prepare_image():
 
 # test_mse()
 # test_show_image()
-test_prepare_image()
+# test_prepare_image()

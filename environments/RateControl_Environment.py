@@ -96,10 +96,7 @@ class RateControl_Environment(gym.Env):
             state = self.state
 
         print(f"Environment - onRequestAction state : {state}")
-        if self.remaining_bit > 0:
-            action = self.onRequestAction(state)
-        else:
-            action = 0 #lowest qp for jpeg encoding (qp =action +1)
+        action = self.onRequestAction(state, self.remaining_bit > 0)
 
         print(f"{self.current_ctu} - select action - {action}")
         assert action < NUM_QP_LEVELS , "You picked an invalid action"

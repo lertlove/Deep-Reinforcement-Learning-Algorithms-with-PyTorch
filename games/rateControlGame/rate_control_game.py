@@ -93,7 +93,7 @@ class RateControlGame():
             print(f"doCompressCtu filepath : {filepath}")
             print(f"doCompressCtu selectedQP : {selectedQP}")
             
-            bitused, mse = quant.doQuantize(filepath,selectedQP,destDir, self.environment.config.use_ssd_insteadof_mse)
+            quantizedFile, bitused, mse = quant.doQuantize(filepath,selectedQP,destDir, self.environment.config.use_ssd_insteadof_mse)
         else:
             originalFile = self.imageFile
             mergeImage = quant.mergeImages(self.imageFile,destDir)
@@ -114,6 +114,7 @@ class RateControlGame():
         metaFilePath = f"{destDir}/{self.agent_round}_{self.episode_step+1}_meta.txt"
         with open(metaFilePath, "w") as metaFile:
             print(f"targetBit: {targetBit}\n", file=metaFile)
+            print(f"fileSize: {targetBit/8}\n", file=metaFile)
             print(f"imageData: {imageData}\n", file=metaFile)
         return targetBit, imageData
     
