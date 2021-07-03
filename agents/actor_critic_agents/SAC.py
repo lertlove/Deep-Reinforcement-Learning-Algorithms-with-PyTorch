@@ -41,6 +41,9 @@ class SAC(Base_Agent):
         self.actor_local = self.create_NN(input_dim=self.state_size, output_dim=self.action_size * 2, key_to_use="Actor")
         self.actor_optimizer = torch.optim.Adam(self.actor_local.parameters(),
                                           lr=self.hyperparameters["Actor"]["learning_rate"], eps=1e-4)
+        
+        self.load_models_ifneed()
+
         self.automatic_entropy_tuning = self.hyperparameters["automatically_tune_entropy_hyperparameter"]
         if self.automatic_entropy_tuning:
             self.target_entropy = -torch.prod(torch.Tensor(self.environment.action_space.shape).to(self.device)).item() # heuristic value from the paper
@@ -56,6 +59,37 @@ class SAC(Base_Agent):
                                   self.hyperparameters["theta"], self.hyperparameters["sigma"])
 
         self.do_evaluation_iterations = self.hyperparameters["do_evaluation_iterations"]
+
+    def load_models_ifneed(self):
+        if self.config.load_model_file is not None:
+            save_data = self.load_model_from_file(self.config.load_model_file)
+
+            self.critic_local.load_state_dict(save_data["critic_local_state_dict"])                
+            self.critic_optimizer.load_state_dict(save_data["critic_optimizer_state_dict"])
+            self.critic_local_2.load_state_dict(save_data["critic_local_2_state_dict"])                
+            self.critic_optimizer_2.load_state_dict(save_data["critic_optimizer_2_state_dict"])
+
+            self.critic_target.load_state_dict(save_data["critic_target_state_dict"])                
+            self.critic_target_2.load_state_dict(save_data["critic_target_2_state_dict"])
+
+            self.actor_local.load_state_dict(save_data["actor_local_state_dict"])                
+            self.actor_optimizer.load_state_dict(save_data["actor_optimizer_state_dict"])
+
+            self.episode_number = save_data["episode"]
+            self.environment.start_from_episode(self.episode_number)
+
+            # load result from file
+            preexisting_results = self.load_obj(save_data["results_path"])
+            all_results = preexisting_results[self.agent_name]
+            results = all_results[len(all_results)-1] #get last round results
+
+            self.game_full_episode_scores = results[0]
+            self.rolling_results = results[1]
+            self.max_rolling_score_seen = save_data["max_rolling_score_seen"]
+            self.max_episode_score_seen = save_data["max_episode_score_seen"]
+
+            print(f"start from episode : {self.episode_number}")
+            print(f"load model from file : {self.config.load_model_file}")
 
     def save_result(self):
         """Saves the result of an episode of the game. Overriding the method in Base Agent that does this because we only
@@ -223,8 +257,14 @@ class SAC(Base_Agent):
         if self.config.save_and_load_meta_state:
             data_to_save = {
                 'episode': self.episode_number,
-                'model_state_dict': self.critic_local.state_dict(),
-                'optimizer_state_dict': self.critic_optimizer.state_dict(),
+                'critic_local_state_dict': self.critic_local.state_dict(),
+                'critic_optimizer_state_dict': self.critic_optimizer.state_dict(),
+                'critic_local_2_state_dict': self.critic_local_2.state_dict(),
+                'critic_optimizer_2_state_dict': self.critic_optimizer_2.state_dict(),
+                'critic_target_state_dict': self.critic_target.state_dict(),
+                'critic_target_2_state_dict': self.critic_target_2.state_dict(),
+                'actor_local_state_dict': self.actor_local.state_dict(),
+                'actor_optimizer_state_dict': self.actor_optimizer.state_dict(),
                 'results_path': results_path,
                 'max_rolling_score_seen': self.max_rolling_score_seen,
                 'max_episode_score_seen': self.max_episode_score_seen

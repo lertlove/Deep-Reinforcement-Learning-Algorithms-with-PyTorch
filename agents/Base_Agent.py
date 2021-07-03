@@ -55,6 +55,20 @@ class Base_Agent(object):
         gym.logger.set_level(40)  # stops it from printing an unnecessary warning
         self.log_game_info()
 
+    def load_obj(self, name):
+        """Loads a pickle file object"""
+        with open(name, 'rb') as f:
+            return pickle.load(f)
+
+    def load_model_from_file(self,load_model_file):
+        """Load the policy"""
+        # if self.config.use_GPU:
+        #     # Load all tensors onto GPU 0
+        #     return torch.load(load_model_file, map_location=lambda storage, loc: storage.cuda(0))
+        # else:
+        #     return torch.load(load_model_file)
+        return torch.load(load_model_file, map_location=torch.device(self.device))
+
     def step(self):
         """Takes a step in the game. This method must be overriden by any agent"""
         raise ValueError("Step needs to be implemented by the agent")

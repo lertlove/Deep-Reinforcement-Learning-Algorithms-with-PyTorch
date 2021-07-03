@@ -16,9 +16,8 @@ config.num_episodes_to_run = 3000
 config.ctu_width = 64
 config.ctu_height = 64
 
-
-config.experiment_name = "exp_4"
-config.results_dir = f"/src/results/rc_results/{config.experiment_name}/"
+config.experiment_name = "exp_7"
+config.results_dir = f"/src/results/rc_results/{config.experiment_name}"
 config.file_to_save_data_results = f"{config.results_dir}/rc_openImageNet_{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.pkl"
 config.file_to_save_results_graph = f"{config.results_dir}/rc_openImageNet_graph-{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.png"
 config.show_solution_score = False
@@ -32,16 +31,15 @@ config.randomise_random_seed = True
 config.save_model = True
 
 
-config.training_episode_per_eval = 5
+config.training_episode_per_eval = 20
 config.trials = 50
 config.use_ssd_insteadof_mse = True
 config.save_and_load_meta_state = True
 config.interval_save_result = 500
 config.interval_save_policy = 500
-config.model_dir = f"/src/results/rc_models/{config.experiment_name}/"
+config.model_dir = f"/src/results/rc_models/{config.experiment_name}"
 config.file_to_save_policy = f"{config.model_dir}/Policy_{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.pt"
-# config.load_model_file = "/src/results/rc_models/Policy_30_1-640_640-Passive_DQN-ep_30-score_-284.00.pt"
-
+# config.load_model_file = "/src/results/rc_models/exp_6/Policy_100_1-640_640-Passive_SAC_Discrete-ep_100-score_-264.14.pt"
 
 config.environment = RateControl_Environment(config, 256)
 
@@ -96,7 +94,7 @@ config.hyperparameters = {
             "initialiser": "Xavier"
         },
 
-        "min_steps_before_learning": 10,
+        "min_steps_before_learning": 1000,
         "batch_size": 256,
         "discount_rate": 0.99,
         "mu": 0.0, #for O-H noise

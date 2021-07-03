@@ -50,11 +50,6 @@ class DQN(Base_Agent):
             
         self.exploration_strategy = Epsilon_Greedy_Exploration(config)
 
-    def load_obj(self, name):
-        """Loads a pickle file object"""
-        with open(name, 'rb') as f:
-            return pickle.load(f)
-
     def reset_game(self):
         super(DQN, self).reset_game()
         self.update_learning_rate(self.hyperparameters["learning_rate"], self.q_network_optimizer)
@@ -151,15 +146,6 @@ class DQN(Base_Agent):
 
         else:
             torch.save(self.q_network_local.state_dict(), policy_path)
-
-    def load_model_from_file(self,load_model_file):
-        """Load the policy"""
-        return torch.load(load_model_file, map_location=torch.device(self.device))
-        # if self.config.use_GPU:
-        #     # Load all tensors onto GPU 0
-        #     return torch.load(load_model_file, map_location=lambda storage, loc: storage.cuda(0))
-        # else:
-        #     return torch.load(load_model_file)
 
     def time_for_q_network_to_learn(self):
         """Returns boolean indicating whether enough steps have been taken for learning to begin and there are
