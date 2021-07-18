@@ -105,6 +105,15 @@ class SAC(Base_Agent):
             self.rolling_results.extend([np.mean(self.game_full_episode_scores[-1 * self.rolling_score_window:]) for _ in range(self.config.training_episode_per_eval)])
             self.save_max_result_seen()
 
+        if self.config.interval_save_result is not None:
+            if self.episode_number%self.config.interval_save_result == 0 and self.config.file_to_save_data_results: 
+                self.save_result_to_file()
+        
+        if self.config.interval_save_policy is not None:
+            if self.episode_number%self.config.interval_save_policy == 0 and self.config.file_to_save_data_results: 
+                results_path = self.save_result_to_file()
+                self.locally_save_policy(results_path)
+
     def reset_game(self):
         """Resets the game information so we are ready to play a new episode"""
         Base_Agent.reset_game(self)

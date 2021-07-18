@@ -12,7 +12,7 @@ from agents.actor_critic_agents.Passive_SAC_Discrete import Passive_SAC_Discrete
 
 config = Config()
 config.seed = 1
-config.num_episodes_to_run = 3000
+config.num_episodes_to_run = 10000
 config.ctu_width = 64
 config.ctu_height = 64
 
@@ -35,11 +35,11 @@ config.training_episode_per_eval = 20
 config.trials = 50
 config.use_ssd_insteadof_mse = True
 config.save_and_load_meta_state = True
-config.interval_save_result = 500
-config.interval_save_policy = 500
+config.interval_save_result = 100
+config.interval_save_policy = 100
 config.model_dir = f"/src/results/rc_models/{config.experiment_name}"
 config.file_to_save_policy = f"{config.model_dir}/Policy_{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.pt"
-# config.load_model_file = "/src/results/rc_models/exp_6/Policy_100_1-640_640-Passive_SAC_Discrete-ep_100-score_-264.14.pt"
+config.load_model_file = "/src/results/rc_models/exp_7/Policy_10000_1-64_64-Passive_SAC_Discrete-ep_4200-score_-802.84.pt"
 
 config.environment = RateControl_Environment(config, 256)
 
@@ -50,7 +50,7 @@ config.hyperparameters = {
         "buffer_size": 20,
         "epsilon_decay_rate_denominator": 150,
         "discount_rate": 0.999,
-        "incremental_td_error": 1e-8,
+        "incremental_td_error": 1e-8, 
         "update_every_n_steps": 1,
         "linear_hidden_units": [400, 300],
         "final_layer_activation": None,

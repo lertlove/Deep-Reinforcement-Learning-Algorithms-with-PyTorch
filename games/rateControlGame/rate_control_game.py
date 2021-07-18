@@ -75,7 +75,7 @@ class RateControlGame():
         
         self.episode_step = self.episode_step + 1
         self.agent_round = agent_round
-        print(f"Episode : {self.episode_step}: Game - Do start game at agent_round {self.agent_round}")
+        print(f"<<<<<<<<<<< Episode : {self.episode_step}: Game - Do start game at agent_round {self.agent_round} >>>>>>>>>>>>")
         
         return self.doCompressCtu()
     

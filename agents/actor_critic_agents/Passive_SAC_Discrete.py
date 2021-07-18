@@ -144,3 +144,12 @@ class Passive_SAC_Discrete(SAC):
 
         elif (self.episode_number - 1) % self.config.training_episode_per_eval == 0:
             self.save_max_result_seen()
+    
+        if self.config.interval_save_result is not None:
+            if self.episode_number%self.config.interval_save_result == 0 and self.config.file_to_save_data_results: 
+                self.save_result_to_file()
+        
+        if self.config.interval_save_policy is not None:
+            if self.episode_number%self.config.interval_save_policy == 0 and self.config.file_to_save_data_results: 
+                results_path = self.save_result_to_file()
+                self.locally_save_policy(results_path)
