@@ -39,7 +39,7 @@ def test_show_image():
     filepath = "/mnt/nas/openImageNet/dataset/train/14702abb25310cee.jpg"
     filepath = "/mnt/nas/openImageNet/dataset/train/1470dc1168584d9b.jpg"
     filepath =  "/mnt/nas/openImageNet/dataset/train/1ebb35691b23f11e.jpg"
-    filepath = "/mnt/nas/openImageNet/dataset/train/53f89061c108bdf9.jpg"
+    filepath = "/mnt/nas/openImageNet/dataset/train/4728d246e8333a50.jpg"
     image = cv2.imread(filepath)
     print(f"image shape = {image.shape}")
     q.showImage("test",image)
@@ -143,7 +143,7 @@ def test_binary_search_quant():
         qp -= 1
 
 
-test_binary_search_quant()
+# test_binary_search_quant()
 
 # ctuImages = test_split_to_tile()
 # print(ctuImages)
@@ -151,5 +151,5 @@ test_binary_search_quant()
 # test_merge2()
 
 # test_mse()
-# test_show_image()
+test_show_image()
 # test_prepare_image()
