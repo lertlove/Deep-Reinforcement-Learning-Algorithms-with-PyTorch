@@ -6,6 +6,7 @@ sys.path.append(dirname(dirname(abspath(__file__))))
 import gym
 from environments.RateControl_Environment import RateControl_Environment
 from agents.Trainer import Trainer
+from agents.OnlineTrainer import OnlineTrainer
 from utilities.data_structures.Config import Config
 from agents.DQN_agents.Passive_DQN import Passive_DQN
 from agents.actor_critic_agents.Passive_SAC_Discrete import Passive_SAC_Discrete
@@ -114,7 +115,8 @@ config.hyperparameters = {
 if __name__== '__main__':
     # AGENTS = [Passive_DQN]
     AGENTS = [Passive_SAC_Discrete]
-    trainer = Trainer(config, AGENTS)
-    trainer.run_games_for_agents()
+    # trainer = Trainer(config, AGENTS)
+    # trainer.run_games_for_agents()
+    trainer = OnlineTrainer(config, AGENTS)
 
 

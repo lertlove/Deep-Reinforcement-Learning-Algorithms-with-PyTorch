@@ -18,5 +18,8 @@ COPY requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
 RUN apt install -y python3-tk
+# RUN apt install -y openjdk-8-jdk-headless -qq 
+RUN yes|pip install pyzmq
+
 
 CMD ["jupyter", "notebook", "--port=8888", "--no-browser", "--ip=0.0.0.0", "--allow-root","--NotebookApp.token=''","--NotebookApp.password=''"]
