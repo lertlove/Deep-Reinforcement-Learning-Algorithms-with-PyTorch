@@ -5,6 +5,7 @@ import matplotlib.image as mpimg
 from scipy import misc
 from PIL import Image
 import os
+from pathlib import Path
 import torch
 import random
 import cv2
@@ -17,8 +18,8 @@ def read_image(filepath):
     img = mpimg.imread(filepath)
 
     # uncomment the below code to view the loaded image
-    plt.imshow(img) # plotting the image
-    plt.show()
+    # plt.imshow(img) # plotting the image
+    # plt.show()
     
     # # scaling it so that the values are small
     img = img / 255
@@ -27,6 +28,7 @@ def read_image(filepath):
 
 def resizeImage(infile, basewidth=128):
 
+    global SAVE_DIR_NAME
     img = Image.open(infile)
     print(img)
     wpercent = (basewidth/float(img.size[0]))
@@ -34,12 +36,14 @@ def resizeImage(infile, basewidth=128):
     size = basewidth, hsize
 
     # outfile = os.path.splitext(infile)[0] + ".thumbnail"
-    outfile = "input.png"
-    print(outfile)
-    if infile != outfile:
+    filename = Path(infile).stem
+    outPng = f"{SAVE_DIR_NAME}/input-{filename}.png"
+    outJpg = f"{SAVE_DIR_NAME}/input-{filename}.jpg"
+    print(outPng)
+    if infile != outPng:
         try:
             img.thumbnail(size, Image.ANTIALIAS)
-            # im.save(outfile, "JPEG")
+            # im.save(outPng, "JPEG")
             # plt.imshow(img) # plotting the image
             # plt.show()
         except IOError:
@@ -48,7 +52,8 @@ def resizeImage(infile, basewidth=128):
     img = np.asarray(img)
     saveImage = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     # saveImage = img.float()
-    cv2.imwrite(outfile, saveImage)
+    cv2.imwrite(outPng, saveImage)
+    cv2.imwrite(outJpg, saveImage)
 
     img = img / 255
     return img
@@ -114,8 +119,9 @@ def computeMeans(dataset, idx, K):
     centroids = torch.cat([centroids[i][0] for i in range(K)]).float().to(DEVICE)
     return centroids.view(K, -1)
 
-def compress_image(centroids, idx, shape, clusters):
+def compress_image(centroids, idx, shape, clusters, filepath=""):
 
+    global SAVE_DIR_NAME
      # create the compressed image
     recovered = torch.ones(shape[0]*shape[1], shape[2]).float().to(DEVICE)
     print(f"recovered.dtype - {recovered.dtype}")
@@ -128,28 +134,75 @@ def compress_image(centroids, idx, shape, clusters):
     recovered = recovered.cpu().data.numpy()
 
     # show the image
-    plt.imshow(recovered)
-    plt.show()
+    # plt.imshow(recovered)
+    # plt.show()
     # recovered *= 255
 
-    savefile = 'compressed_' + str(clusters) + '_colors.png'
+    filename = Path(filepath).stem
+    savePng = f"{SAVE_DIR_NAME}/compressed_{str(clusters)}-{filename}.png"
+    saveJpg = f"{SAVE_DIR_NAME}/compressed_{str(clusters)}-{filename}.jpg"
     # saving the compressed image.
     # misc.imsave('compressed_' + str(clusters) +
     #                     '_colors.png', recovered)
-    print(savefile)
+    print(savePng)
     img = cv2.convertScaleAbs(recovered, alpha=(255.0))
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-    cv2.imwrite(savefile, img)
+    
+    cv2.imwrite(savePng, img)
+    cv2.imwrite(saveJpg, img)
 
-BASE_WIDTH=256
-CLUSTERS = 16
-ITERATIONS = 2
+
+def showYUV(filepath):
+    image = cv2.imread(filepath)
+    cv2.imshow("original",image)
+    cv2.imwrite("original.png", image)
+    cv2.imwrite("original.jpg", image)
+
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2YUV)
+    
+    image[:,:,0] = image[:,:,0]-30
+    # image[1::] = image[0::]-10
+    print(image)
+
+    cv2.imshow("yuv",image)
+    #waits for user to press any key 
+    #(this is necessary to avoid Python kernel form crashing)
+    # cv2.waitKey(0) 
+    
+    # #closing all open windows 
+    # cv2.destroyAllWindows() 
+
+    image = cv2.cvtColor(image, cv2.COLOR_YUV2BGR)
+    cv2.imshow("bgr",image)
+    cv2.imwrite("yuv.png", image)
+    cv2.imwrite("yuv.jpg", image)
+    #waits for user to press any key 
+    #(this is necessary to avoid Python kernel form crashing)
+    cv2.waitKey(0) 
+    
+    #closing all open windows 
+    cv2.destroyAllWindows() 
+
+BASE_WIDTH = 256
+CLUSTERS = 8
+ITERATIONS = 5
 DEVICE = "cuda:0"
 DEVICE = "cpu"
 
+SAVE_DIR_NAME=""
+
 def doCompress(filepath):
 
+    global SAVE_DIR_NAME
+    SAVE_DIR_NAME = Path(filepath).stem
     print(f"doCompress - {filepath}")
+    try:
+        # Create target Directory
+        os.mkdir(SAVE_DIR_NAME)
+        print("Directory " , SAVE_DIR_NAME ,  " Created ") 
+    except FileExistsError:
+        print("Directory " , SAVE_DIR_NAME ,  " already exists")
+
     # img = read_image(filepath)
     img = resizeImage(filepath,BASE_WIDTH)
     print(f"resize - {img.shape}")
@@ -159,6 +212,8 @@ def doCompress(filepath):
     print(img.shape)
     print(f"preprocessData - {img.shape}")
 
-    means, index = k_means(img, CLUSTERS, ITERATIONS)
-    compress_image(means, index, output_shape, CLUSTERS)
-   
+    cluster = CLUSTERS
+    for i in range(0,5):
+        means, index = k_means(img, cluster, ITERATIONS)
+        compress_image(means, index, output_shape, cluster, filepath)
+        cluster *= 2
