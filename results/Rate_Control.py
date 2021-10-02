@@ -5,6 +5,7 @@ sys.path.append(dirname(dirname(abspath(__file__))))
 
 import gym
 from environments.RateControl_Environment import RateControl_Environment
+from environments.Online_RateControl_Environment import Online_RateControl_Environment
 from agents.Trainer import Trainer
 from agents.OnlineTrainer import OnlineTrainer
 from utilities.data_structures.Config import Config
@@ -42,7 +43,8 @@ config.model_dir = f"/src/results/rc_models/{config.experiment_name}"
 config.file_to_save_policy = f"{config.model_dir}/Policy_{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.pt"
 config.load_model_file = "/src/results/rc_models/exp_7/Policy_10000_1-64_64-Passive_SAC_Discrete-ep_4200-score_-802.84.pt"
 
-config.environment = RateControl_Environment(config, 256)
+config.environment = Online_RateControl_Environment(config, 256)
+# config.environment = RateControl_Environment(config, 256)
 
 config.hyperparameters = {
     "Passive_DQN_Agents": {

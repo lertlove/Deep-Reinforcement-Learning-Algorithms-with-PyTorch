@@ -12,9 +12,10 @@ import threading
 
 class ZmqServer(threading.Thread):
 
-    def __init__(self):
+    def __init__(self, config):
         threading.Thread.__init__ (self)
         self.context = zmq.Context()
+        self.environment = config.environment
         print("ZmqServer __init__")
 
     def run(self):
@@ -29,34 +30,46 @@ class ZmqServer(threading.Thread):
 
             print("Received command: %s" % message["command"])
             #  print("Received baseQP: %s" % message["baseQP"])
-            func = getattr(self, message["command"])
-            func(message)
+            func = getattr(self.environment, message["command"])
+            reply = func(message)
             # listQP = message["listQP"]
-            meanQP = np.mean(message["listQP"])
+            # meanQP = np.mean(message["listQP"])
             # print("Received listQP: %s" % listQP)
             # print("Received mean QP: %s" % meanQP)
 
             #  Do some 'work'
             time.sleep(1)
             
-            reply = f"We have got meanQP = {meanQP}"
+            # reply = f"We have got meanQP = {meanQP}"
 
             #  Send reply back to client
             socket.send(bytes(reply, 'utf-8'))
 
-    def start_experiment(self,message):
-        print(f"start_experiment {message}")
+    # def start_experiment(self,message):
+    #     print(f"start_experiment {message}")
+
+    #     self.environment.start_experiment(message)
+
+    #     reply = f"We have got start_experiment = {message}"
+    #     return reply
     
-    def start_espisode(self,message):
-        print(f"start_espisode {message}")
+    # def start_espisode(self,message):
+    #     print(f"start_espisode {message}")
+    #     reply = f"We have got start_espisode = {message}"
+    #     return reply
 
-    def request_estimate_qp(self,message):
-        print(f"request_estimate_qp {message}")
-        #return selected qp
+    # def request_estimate_qp(self,message):
+    #     print(f"request_estimate_qp {message}")
+    #     reply = f"We have got request_estimate_qp = {message}"
+    #     #return selected qp
+    #     return reply
 
-    def after_apply_qp(self,message):
-        print(f"after_apply_qp {message}")
+    # def after_apply_qp(self,message):
+    #     print(f"after_apply_qp {message}")
+    #     reply = f"We have got after_apply_qp = {message}"
+    #     return reply
 
-    def start_experiment(self,message):
-        # received bitused, mse
-        print(f"start_experiment {message}")
+    # def end_episode(self,message):
+    #     print(f"end_episode {message}")
+    #     reply = f"We have got end_episode = {message}"
+    #     return reply
