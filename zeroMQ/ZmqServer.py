@@ -15,8 +15,12 @@ class ZmqServer(threading.Thread):
     def __init__(self, config):
         threading.Thread.__init__ (self)
         self.context = zmq.Context()
+        self.config = config
         self.environment = config.environment
-        print("ZmqServer __init__")
+        # print("ZmqServer __init__")
+
+    def update_environment(self, environment):
+        self.environment = environment
 
     def run(self):
         print("ZmqServer run")

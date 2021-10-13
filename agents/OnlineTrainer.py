@@ -13,8 +13,8 @@ class OnlineTrainer(Trainer):
     """Runs games for given agents. Optionally will visualise and save the results"""
     def __init__(self, config, agents):
         Trainer.__init__(self,config,agents)
-        zmqServer = ZmqServer(config)
-        zmqServer.start()
+        self.zmqServer = ZmqServer(config)
+        self.zmqServer.start()
         print("OnlineTrainer end init")
 
 
@@ -44,6 +44,7 @@ class OnlineTrainer(Trainer):
         agent_round = 1
         
         agent_config = copy.deepcopy(self.config)
+        self.zmqServer.update_environment(agent_config.environment)
 
             # if self.environment_has_changeable_goals(agent_config.environment) and self.agent_cant_handle_changeable_goals_without_flattening(agent_name):
             #     print("Flattening changeable-goal environment for agent {}".format(agent_name))
@@ -57,6 +58,8 @@ class OnlineTrainer(Trainer):
         agent = agent_class(agent_config)
         self.environment_name = agent.environment_title
         print(agent.hyperparameters)
+
+        print(f"start_agent_server: {agent.environment.onRequestAction}")
         print("RANDOM SEED: " , agent_config.seed)
         
         # summarize each episodes
