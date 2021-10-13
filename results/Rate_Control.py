@@ -10,6 +10,7 @@ from agents.Trainer import Trainer
 from agents.OnlineTrainer import OnlineTrainer
 from utilities.data_structures.Config import Config
 from agents.DQN_agents.Passive_DQN import Passive_DQN
+from agents.DQN_agents.Online_DQN import Online_DQN
 from agents.actor_critic_agents.Passive_SAC_Discrete import Passive_SAC_Discrete
 
 config = Config()
@@ -36,17 +37,34 @@ config.save_model = True
 config.training_episode_per_eval = 20
 config.trials = 50
 config.use_ssd_insteadof_mse = True
-config.save_and_load_meta_state = True
+config.save_and_load_meta_state = False
 config.interval_save_result = 100
 config.interval_save_policy = 100
 config.model_dir = f"/src/results/rc_models/{config.experiment_name}"
 config.file_to_save_policy = f"{config.model_dir}/Policy_{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.pt"
-config.load_model_file = "/src/results/rc_models/exp_7/Policy_10000_1-64_64-Passive_SAC_Discrete-ep_4200-score_-802.84.pt"
+# config.load_model_file = "/src/results/rc_models/exp_7/Policy_10000_1-64_64-Passive_SAC_Discrete-ep_4200-score_-802.84.pt"
 
 config.environment = Online_RateControl_Environment(config, 256)
 # config.environment = RateControl_Environment(config, 256)
 
 config.hyperparameters = {
+    "Online_DQN_Agents": {
+        "learning_rate": 0.001,
+        "batch_size": 64,
+        "buffer_size": 20,
+        "epsilon_decay_rate_denominator": 150,
+        "discount_rate": 0.999,
+        "incremental_td_error": 1e-8, 
+        "update_every_n_steps": 1,
+        "linear_hidden_units": [400, 300],
+        "final_layer_activation": None,
+        "y_range": (-1, 14),
+        "batch_norm": False,
+        "gradient_clipping_norm": 5,
+        "HER_sample_proportion": 0.8,
+        "learning_iterations": 1,
+        "clip_rewards": False
+    },
     "Passive_DQN_Agents": {
         "learning_rate": 0.001,
         "batch_size": 64,
@@ -116,9 +134,11 @@ config.hyperparameters = {
 
 if __name__== '__main__':
     # AGENTS = [Passive_DQN]
-    AGENTS = [Passive_SAC_Discrete]
+    AGENTS = [Online_DQN]
     # trainer = Trainer(config, AGENTS)
     # trainer.run_games_for_agents()
     trainer = OnlineTrainer(config, AGENTS)
+    trainer.run_games_for_agents()
+
 
 

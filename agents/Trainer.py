@@ -46,6 +46,7 @@ class Trainer(object):
             "Dueling DDQN": "DQN_Agents",
             "Passive_DQN": "Passive_DQN_Agents",
             "Passive_SAC_Discrete": "Actor_Critic_Agents",
+            "Online_DQN": "Online_DQN_Agents",
         }
         return agent_to_agent_group_dictionary
 

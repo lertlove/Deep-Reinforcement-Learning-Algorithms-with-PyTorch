@@ -14,11 +14,20 @@ class Online_DQN(DQN):
     """A deep Q learning agent"""
     agent_name = "Online_DQN"
     def __init__(self, config):
+        print(f"Online_DQN init")
         DQN.__init__(self, config)
         self.passive = True
         # delegate function for request action method
+        # print(f"Online_DQN environment: {hex(id(self.environment))}")
+        self.environment.onStartExperiment = self.reset_game
         self.environment.onRequestAction = self.pick_action
+        print(f"environment.onRequestAction init: {self.environment.onRequestAction}")
         self.environment.onDoneAction = self.step
+        
+        
+    def get_state_size(self):
+        print(f"Online_DQN get_state_size")
+        return self.environment.get_state_size()
 
     # def reset_game(self):
     #     super(Passive_DQN, self).reset_game()
@@ -42,7 +51,9 @@ class Online_DQN(DQN):
             self.save_experience()
             self.state = self.next_state #this is to set the state for the next iteration
             self.global_step_number += 1
-            self.environment.finishStep()
+            # no need finish step in online mode
+            # since it waits for zmq message trigger event
+            # self.environment.finishStep()
             print(f"Agent - done = {self.done} finish step")
         else:
             print(f"Agent - done = {self.done} finish episode")
@@ -58,3 +69,23 @@ class Online_DQN(DQN):
                 self.save_result_to_file()
         
         self.save_max_result_seen()
+    
+    def reset_game(self):
+        """Resets the game information so we are ready to play a new episode"""
+        self.environment.seed(self.config.seed)
+        self.state = None #self.environment.reset()
+        self.next_state = None
+        self.action = None
+        self.reward = None
+        self.done = False
+        self.total_episode_score_so_far = 0
+        self.episode_states = []
+        self.episode_rewards = []
+        self.episode_actions = []
+        self.episode_next_states = []
+        self.episode_dones = []
+        self.episode_desired_goals = []
+        self.episode_achieved_goals = []
+        self.episode_observations = []
+        if "exploration_strategy" in self.__dict__.keys(): self.exploration_strategy.reset()
+        self.logger.info("Reseting game -- New start state {}".format(self.state))
