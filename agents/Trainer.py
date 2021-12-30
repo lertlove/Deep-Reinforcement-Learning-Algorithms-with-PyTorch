@@ -73,6 +73,7 @@ class Trainer(object):
             "HRL": "#0E0F0F",
             "Passive_DQN": "#F080B9",
             "Passive_SAC_Discrete": "#1C8F39", 
+            "Online_DQN": "#2C8A48",
         }
         return agent_to_color_dictionary
 

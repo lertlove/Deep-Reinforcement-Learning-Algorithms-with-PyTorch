@@ -26,22 +26,23 @@ class DQN(Base_Agent):
                 
                 save_data = self.load_model_from_file(self.config.load_model_file)
                 self.q_network_local.load_state_dict(save_data["model_state_dict"])                
-                self.q_network_optimizer.load_state_dict(save_data["optimizer_state_dict"])
-                self.episode_number = save_data["episode"]
-                self.environment.start_from_episode(self.episode_number)
+                if "optimizer_state_dict" in save_data:
+                    self.q_network_optimizer.load_state_dict(save_data["optimizer_state_dict"])
+                    self.episode_number = save_data["episode"]
+                    self.environment.start_from_episode(self.episode_number)
 
-                # load result from file
-                preexisting_results = self.load_obj(save_data["results_path"])
-                all_results = preexisting_results[self.agent_name]
-                results = all_results[len(all_results)-1] #get last round results
-                
-                self.game_full_episode_scores = results[0]
-                self.rolling_results = results[1]
-                self.max_rolling_score_seen = save_data["max_rolling_score_seen"]
-                self.max_episode_score_seen = save_data["max_episode_score_seen"]
+                    # load result from file
+                    preexisting_results = self.load_obj(save_data["results_path"])
+                    all_results = preexisting_results[self.agent_name]
+                    results = all_results[len(all_results)-1] #get last round results
+                    
+                    self.game_full_episode_scores = results[0]
+                    self.rolling_results = results[1]
+                    self.max_rolling_score_seen = save_data["max_rolling_score_seen"]
+                    self.max_episode_score_seen = save_data["max_episode_score_seen"]
 
-                print(f"start from episode : {self.episode_number}")
-                print(f"load model from file : {self.config.load_model_file}")
+                    print(f"start from episode : {self.episode_number}")
+                    print(f"load model from file : {self.config.load_model_file}")
 
             else:
                 print(f"load model from file : {self.config.load_model_file}")
@@ -129,16 +130,16 @@ class DQN(Base_Agent):
         """Saves the policy"""
         super().locally_save_policy(results_path)
         policy_path = os.path.splitext(self.config.file_to_save_policy)[0]
-        policy_path = f"{policy_path}-{self.agent_name}-ep_{self.episode_number}-score_{self.max_rolling_score_seen:.2f}.pt"
+        policy_path = f"{policy_path}-{self.agent_name}-ep_{self.episode_number}-score_{self.max_rolling_score_seen:.5f}.pt"
         
         if self.config.save_and_load_meta_state:
             data_to_save = {
-                'episode': self.episode_number,
+                # 'episode': self.episode_number,time_for_q_network_to_learn
                 'model_state_dict': self.q_network_local.state_dict(),
-                'optimizer_state_dict': self.q_network_optimizer.state_dict(),
-                'results_path': results_path,
-                'max_rolling_score_seen': self.max_rolling_score_seen,
-                'max_episode_score_seen': self.max_episode_score_seen
+                # 'optimizer_state_dict': self.q_network_optimizer.state_dict(),
+                # 'results_path': results_path,
+                # 'max_rolling_score_seen': self.max_rolling_score_seen,
+                # 'max_episode_score_seen': self.max_episode_score_seen
             }
             print(f"locally_save_policy results path : {results_path}")
             torch.save(data_to_save, policy_path)
@@ -150,10 +151,13 @@ class DQN(Base_Agent):
     def time_for_q_network_to_learn(self):
         """Returns boolean indicating whether enough steps have been taken for learning to begin and there are
         enough experiences in the replay buffer to learn from"""
+        print(f"time_for_q_network_to_learn ==> enough_experiences_to_learn_from:{self.enough_experiences_to_learn_from()}")
         return self.right_amount_of_steps_taken() and self.enough_experiences_to_learn_from()
 
     def right_amount_of_steps_taken(self):
         """Returns boolean indicating whether enough steps have been taken for learning to begin"""
+        print(f"right_amount_of_steps_taken ==> global_step_number:{self.global_step_number}")
+        print(f"right_amount_of_steps_taken ==> update_every_n_steps:{self.hyperparameters['update_every_n_steps']}")
         return self.global_step_number % self.hyperparameters["update_every_n_steps"] == 0
 
     def sample_experiences(self):

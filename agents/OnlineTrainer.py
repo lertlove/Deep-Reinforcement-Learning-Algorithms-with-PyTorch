@@ -59,7 +59,6 @@ class OnlineTrainer(Trainer):
         self.environment_name = agent.environment_title
         print(agent.hyperparameters)
 
-        print(f"start_agent_server: {agent.environment.onRequestAction}")
         print("RANDOM SEED: " , agent_config.seed)
         
         # summarize each episodes

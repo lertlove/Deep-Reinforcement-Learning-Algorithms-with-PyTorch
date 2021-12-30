@@ -18,7 +18,7 @@ from gameMode import GameMode
 from rateControlGame import RateControlGame
 from utils import quant
 
-NUM_QP_LEVELS = 256
+NUM_QP_LEVELS = 52
 MAX_NUM_CTUS = 100
 
 GAME_MODE=GameMode.TRAIN_MODE
@@ -28,7 +28,7 @@ SOURCE_DIR = abspath(join(dirname(__file__), '../content/dataset'))
 class Online_RateControl_Environment(gym.Env):
     environment_name = "Rate Control Environment"
 
-    def __init__(self, config=None, environment_dimension=256, deterministic=False):
+    def __init__(self, config=None, environment_dimension=52, deterministic=False):
         
         self.config = config
         # self.game = RateControlGame(self,SOURCE_DIR)
@@ -81,6 +81,8 @@ class Online_RateControl_Environment(gym.Env):
         self.onStartExperiment = None
         self.onRequestAction = None
         self.onDoneAction = None
+        self.onEndEpisode = None
+        self.reset_game_agent = None
         print("init RateControl_Environment")
     
     def get_state_size(self):
@@ -146,7 +148,8 @@ class Online_RateControl_Environment(gym.Env):
         self.remaining_bit = self.total_target_bit
         self.percent_bit_balance = 1
 
-        self.reset()
+        self.reset_game_agent()
+        # self.reset()
     
     def reset(self):
 
@@ -170,7 +173,7 @@ class Online_RateControl_Environment(gym.Env):
         self.next_state = None
         self.reward = None
         self.done = False
-
+        print(f"reset: self.state = {self.state}")
         return self.state
 
     def done_action(self):
@@ -211,7 +214,7 @@ class Online_RateControl_Environment(gym.Env):
         print(f'{self.current_ctu} - after action - {action}')
         self.step_count += 1
         self.done_action()
-        if self.current_ctu > self.total_num_ctus:
+        if self.current_ctu >= self.total_num_ctus:
             self.done = True
         self.state = self.next_state
         print(f"self.episodeVariables = {self.episodeVariables}")
@@ -219,11 +222,12 @@ class Online_RateControl_Environment(gym.Env):
         return self.state, self.reward, self.done, {}
 
     def finishStep(self, message):
-        # after_apply_qp {'command': 'after_apply_qp', 'ctuBits': 1559, 'ctuCost': 21056.855254000002, 'ctuDist': 7166, 'ctu_id': 7}
+        # after_apply_qp = {'command': 'after_apply_qp', 'ctuBits': 3643, 'ctuCost': 219322.832756, 'ctuDist': 197890, 'ctuMSE': 48.31298828125, 'ctu_id': 0}
         
         self.current_ctu = message["ctu_id"]
         self.currentBitUsed = message["ctuBits"]
-        self.currentMSE = message["ctuDist"]
+        # self.currentMSE = message["ctuDist"]
+        self.currentMSE = message["ctuMSE"]
         
         ######################################## 
         self.onDoneAction() 
@@ -271,8 +275,9 @@ class Online_RateControl_Environment(gym.Env):
         result = {"estimate_qp":action}
 
         reply = f"Environment: estimate_qp action = {json.dumps(result)}"
+        print(reply)
         #return selected qp
-        return reply
+        return json.dumps(result)
 
     def after_apply_qp(self,message):
         print(f"after_apply_qp {message}")
@@ -285,5 +290,7 @@ class Online_RateControl_Environment(gym.Env):
     def end_episode(self,message):
         print(f"end_episode {message}")
         # end_episode {'command': 'end_episode', 'numPicCoded': 1, 'totalCoded': 5}
+        
+        self.onEndEpisode()
         reply = f"We have got end_episode = {message}"
         return reply

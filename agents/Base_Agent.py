@@ -332,6 +332,8 @@ class Base_Agent(object):
 
     def enough_experiences_to_learn_from(self):
         """Boolean indicated whether there are enough experiences in the memory buffer to learn from"""
+        # print(f"enough_experiences_to_learn_from ==> len(self.memory):{len(self.memory)}")
+        # print(f"enough_experiences_to_learn_from ==> batch_size:{self.hyperparameters['batch_size']}")
         return len(self.memory) > self.hyperparameters["batch_size"]
 
     def save_experience(self, memory=None, experience=None):

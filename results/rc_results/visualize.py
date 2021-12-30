@@ -7,8 +7,10 @@ print(sys.path)
 from agents import Trainer
 from utilities.data_structures.Config import Config
 
-PICKLE_FILE = "./exp_7/rc_openImageNet_10000_1-64_64-round_1-ep_4200.pkl" if len(sys.argv) <= 1 else sys.argv[1]
+# PICKLE_FILE = "./exp_7/rc_openImageNet_10000_1-64_64-round_1-ep_4200.pkl" if len(sys.argv) <= 1 else sys.argv[1]
+PICKLE_FILE = "exp_4-1_100Mbps/rc_hevc_exp_4-1_100Mbps_1-round_0-ep_300.pkl" if len(sys.argv) <= 1 else sys.argv[1]
 print(f"PICKLE_FILE - {PICKLE_FILE}")
+
 
 config = Config()
 config.visualise_overall_agent_results = True
