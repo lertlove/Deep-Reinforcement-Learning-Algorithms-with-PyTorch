@@ -18,7 +18,7 @@ print(f"sys.getrecursionlimit() = {sys.getrecursionlimit()}")
 DATASET_SPLIT_DIR = '/mnt/nas/openImageNet/dataset'
 CTU_IMAGE_DIR ='/mnt/nas/openImageNet/CTU_Images'
 
-FILE_LIMIT = sys.maxsize
+FILE_LIMIT = sys.maxsize 
 # TRAIN_MODE="train"
 # TEST_MODE="test"
 # GAME_MODE=TRAIN_MODE
@@ -50,9 +50,9 @@ class RateControlGame():
             splitfolders.ratio(self.image_dir, output=DATASET_SPLIT_DIR, seed=1337, ratio=(.8, 0.1,0.1))
         
         self.train = []
-        train_dir= DATASET_SPLIT_DIR + "/" + GameMode.TRAIN_MODE.value
+        train_dir = DATASET_SPLIT_DIR + "/" + GameMode.TRAIN_MODE.value
         print(f"train_dir : {train_dir}")
-        self.loadTrainData(train_dir)
+        # self.loadTrainData(train_dir)
         # print(f"self.train {self.train}")
 
     def start_from_episode(self, episode):
