@@ -4,7 +4,7 @@ import re
 import argparse
 import cv2
 import numpy as np
-import image_slicer
+# import image_slicer
 from pathlib import Path
 from math import log10, sqrt
 # Importing Image module from PIL package 
