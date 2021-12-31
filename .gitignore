@@ -39,3 +39,8 @@ results/data_and_graphs/*.png
 results/*_bak
 .vscode/*
 results/rc_results/exp*
+games/utils/meta/csv_result/*
+games/utils/meta/original/*
+games/utils/meta/split/*
+games/utils/meta/test*/*
+games/utils/meta/yuv/*
