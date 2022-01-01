@@ -1,8 +1,8 @@
 # @echo off
 # set back=%cd%
-ROOT_SOURCE="/home/ola/Documents/PhD/reinforcement/Deep-Reinforcement-Learning-Algorithms-with-PyTorch/games/utils/meta/split/"
+ROOT_SOURCE="/mnt/nas/openImageNet/metadata/list_files/split/"
 
-TARGET_DIR="/home/ola/Documents/PhD/reinforcement/Deep-Reinforcement-Learning-Algorithms-with-PyTorch/games/utils/meta/yuv/"
+TARGET_DIR="/mnt/nas/openImageNet/metadata/list_files/yuv/"
 
 cd $ROOT_SOURCE
 for d in */ ; do

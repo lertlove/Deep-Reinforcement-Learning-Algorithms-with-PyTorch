@@ -1,0 +1,25 @@
+ola@ola:/mnt/nas/openImageNet/dataset$ ls lf_train|wc
+    840     840   17640
+ola@ola:/mnt/nas/openImageNet/dataset$ ls train|wc
+1742201 1742201 36586221
+
+all files: 
+1743041
+
+
+totalPic = 1743070
+NPIC_CLIP = 600
+numTargetFolder = 2906
+
+totalPic = 1743070 - 29 = 1743041
+
+ola@ola:/mnt/nas/openImageNet/dataset/train$ cp ../lf_train/* ./
+ola@ola:/mnt/nas/openImageNet/dataset/train$ ls|wc
+1743041 1743041 36603861
+
+
+
+ola@ola:~/Documents/PhD/reinforcement/Deep-Reinforcement-Learning-Algorithms-with-PyTorch/games/utils/meta$ python3 preprocess.py 
+totalPic = 1743041
+NPIC_CLIP = 600
+numTargetFolder = 2906
