@@ -11,21 +11,20 @@ sys.path.insert(0, abspath(join(dirname(__file__), '../../')))
 from utils import quant
 
 # INIT PARAMS
-FPS = 30
+# NPIC_CLIP = FPS*CLIP_TIME
+NPIC_CLIP=1200
+FPS = 60
 
 # time period in seconds
-SHORT_TIME = 20
-MID_TIME = 60
-LONG_TIME = 300
-DEFAULT_TIME = SHORT_TIME
+CLIP_TIME = NPIC_CLIP/FPS
+# print(CLIP_TIME)
 
-NPIC_CLIP = FPS*DEFAULT_TIME
 
 # CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = "/mnt/nas/openImageNet/metadata/list_files"
 print(ROOT_DIR)
 
-SOURCE_DIR = "test"
+SOURCE_DIR = "source"
 SOURCE_DIR = os.path.join(ROOT_DIR,SOURCE_DIR)
 
 SPLIT_DIR = "split"
@@ -36,7 +35,7 @@ CSV_DIR = "csv_result"
 CSV_DIR = os.path.join(ROOT_DIR,CSV_DIR)
 quant.createTargetDir(CSV_DIR)
 
-METAFILE_BUFFER_SIZE = 20
+METAFILE_BUFFER_SIZE = 10000
 
 def doSplitPicsInDir(sourcDir, targetDir, numDir):
     

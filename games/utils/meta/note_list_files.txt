@@ -19,7 +19,33 @@ ola@ola:/mnt/nas/openImageNet/dataset/train$ ls|wc
 
 
 
+NPIC_CLIP=1200
+FPS = 60
+CLIP_TIME = 20
+
 ola@ola:~/Documents/PhD/reinforcement/Deep-Reinforcement-Learning-Algorithms-with-PyTorch/games/utils/meta$ python3 preprocess.py 
 totalPic = 1743041
-NPIC_CLIP = 600
-numTargetFolder = 2906
+NPIC_CLIP = 1200
+numTargetFolder = 1453
+
+
+
+# ffmpeg -i dataset/%03d.jpg -s 1024x640 -pix_fmt yuv420p -r 200 f.yuv
+# ffplay -f rawvideo -pixel_format yuv420p -s 1024x640 -i f.yuv 
+
+### Resolution
+# 416x240
+# 832x480
+
+# 1920x1080 -> 480x270
+# 1280x720 -> 320x180
+
+# 1024x768 -> 256x192
+
+# 2560x1600 -> 640x400
+
+###Frame Rate
+# 20,24,30,50,60
+
+###QP
+# 22,27,32,37
