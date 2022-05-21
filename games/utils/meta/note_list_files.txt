@@ -29,6 +29,8 @@ NPIC_CLIP = 1200
 numTargetFolder = 1453
 
 
+# ffmpeg -s 1024x640 -i f.yuv -s 416x240 -pix_fmt gray -r 200 f2.yuv
+ffplay -f rawvideo -pixel_format gray -s 416x240 -i f2.yuv 
 
 # ffmpeg -i dataset/%03d.jpg -s 1024x640 -pix_fmt yuv420p -r 200 f.yuv
 # ffplay -f rawvideo -pixel_format yuv420p -s 1024x640 -i f.yuv 
@@ -49,3 +51,15 @@ numTargetFolder = 1453
 
 ###QP
 # 22,27,32,37
+
+# params
+# frame_rate
+# qp
+# resolution width,height
+# targetBitrate
+
+# TARGET_FOLDER="416x240_50"
+# SOURCE_FOLDER="/mnt/nas/openImageNet/metadata/list_files/yuv/$TARGET_FOLDER"
+
+# FILE_INDEX=1
+# ./TAppEncoder -c encoder_intra_main_exp.cfg -i "$SOURCE_FOLDER/$FILE_INDEX.yuv" -b "$TARGET_FOLDER/$FILE_INDEX.bin" 2>&1 |tee result_exp_${EXPERIMENT_ID}_${TARGET_FOLDER}_${FILE_INDEX}.log
