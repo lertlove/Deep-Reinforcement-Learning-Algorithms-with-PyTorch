@@ -38,10 +38,11 @@ class Online_DQN(DQN):
         self.update_learning_rate(self.hyperparameters["learning_rate"], self.q_network_optimizer)
 
     def pick_action(self, state=None, isRemaining=True):
+
         if isRemaining:
             self.action = super().pick_action(state)
         else:
-            self.action = 0
+            self.action = self.environment.action_space.n-1
         print(f"Agent - pick action - {self.action}")
         return self.action
 

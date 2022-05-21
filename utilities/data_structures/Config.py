@@ -18,6 +18,7 @@ class Config(object):
         self.randomise_random_seed = True
         self.show_solution_score = False
         self.debug_mode = False
+        self.reward_function = "MINUS_MSE"
         
         self.load_model_file = None
         self.save_and_load_meta_state = True

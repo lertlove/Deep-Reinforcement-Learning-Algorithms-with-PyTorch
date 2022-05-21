@@ -44,3 +44,5 @@ games/utils/meta/original/*
 games/utils/meta/split/*
 games/utils/meta/test*/*
 games/utils/meta/yuv/*
+results/rc_models/Bak/*
+results/rc_results/Bak/*

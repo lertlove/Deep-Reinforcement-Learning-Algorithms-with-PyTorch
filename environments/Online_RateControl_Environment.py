@@ -158,10 +158,10 @@ class Online_RateControl_Environment(gym.Env):
 
         # initial state - first ctu
         ctu_height, ctu_width = self.ctuShapes[self.current_ctu]
-        ctu_variance = self.ctuVariants[self.current_ctu]/self.maxVariant #compute first ctu variance
+        ctu_variance = self.ctuVariants[self.current_ctu]/self.maxVariant if self.maxVariant != 0 else 0 #compute first ctu variance
         percent_ctu_area = (ctu_width*ctu_height)/(self.total_area)
 
-        avg_remaining_ctu_variants = np.mean(self.ctuVariants[self.current_ctu:self.total_num_ctus])/self.maxVariant
+        avg_remaining_ctu_variants = np.mean(self.ctuVariants[self.current_ctu:self.total_num_ctus])/self.maxVariant if self.maxVariant != 0 else 0
         self.percent_remaining_area -= percent_ctu_area
 
         # should run initialize_episode & setupTargetBits before reset
@@ -185,8 +185,12 @@ class Online_RateControl_Environment(gym.Env):
         # update from message?
         self.current_ctu = self.current_ctu + 1
         
-        # self.reward = 1/self.currentMSE if self.currentMSE >= 0.001 else 1000 
-        self.reward = -self.currentMSE
+        if self.config.reward_function == "RECIPROCAL":
+            self.reward = 1/self.currentMSE if self.currentMSE >= 0.00001 else 100000 
+            print(f"RECIPROCAL reward = {self.reward}")
+        else:
+            self.reward = -self.currentMSE #MINUS_MSE
+            print(f"MINUS_MSE reward = {self.reward}")
 
         self.remaining_bit -= self.currentBitUsed
         self.percent_bit_balance = self.remaining_bit/self.total_target_bit
@@ -194,9 +198,9 @@ class Online_RateControl_Environment(gym.Env):
         if self.current_ctu < self.total_num_ctus:
             percent_remaining_ctu = (self.total_num_ctus-self.current_ctu)/self.total_num_ctus
             ctu_height, ctu_width = self.ctuShapes[self.current_ctu]
-            ctu_variance = self.ctuVariants[self.current_ctu]/self.maxVariant #compute first ctu variance
+            ctu_variance = self.ctuVariants[self.current_ctu]/self.maxVariant if self.maxVariant != 0 else 0 #compute first ctu variance
             percent_ctu_area = (ctu_width*ctu_height)/(self.total_area)
-            avg_remaining_ctu_variants = np.mean(self.ctuVariants[self.current_ctu:self.total_num_ctus])/self.maxVariant
+            avg_remaining_ctu_variants = np.mean(self.ctuVariants[self.current_ctu:self.total_num_ctus])/self.maxVariant if self.maxVariant != 0 else 0
             
             self.percent_remaining_area -= percent_ctu_area
 

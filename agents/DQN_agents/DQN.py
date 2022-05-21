@@ -22,16 +22,20 @@ class DQN(Base_Agent):
                                               lr=self.hyperparameters["learning_rate"], eps=1e-4)
         
         if self.config.load_model_file is not None:
+            print(f"load_model_file not none -> {self.config.load_model_file}")
             if self.config.save_and_load_meta_state:
-                
+                print(f"save_and_load_meta_state is -> {self.config.save_and_load_meta_state}")
                 save_data = self.load_model_from_file(self.config.load_model_file)
                 self.q_network_local.load_state_dict(save_data["model_state_dict"])                
+                print(save_data.keys())
                 if "optimizer_state_dict" in save_data:
+                    print("Load model from file with optimizer_state_dict"); 
                     self.q_network_optimizer.load_state_dict(save_data["optimizer_state_dict"])
                     self.episode_number = save_data["episode"]
                     self.environment.start_from_episode(self.episode_number)
 
                     # load result from file
+                    print(f"Load result from file: {save_data['results_path']}"); 
                     preexisting_results = self.load_obj(save_data["results_path"])
                     all_results = preexisting_results[self.agent_name]
                     results = all_results[len(all_results)-1] #get last round results
@@ -41,8 +45,11 @@ class DQN(Base_Agent):
                     self.max_rolling_score_seen = save_data["max_rolling_score_seen"]
                     self.max_episode_score_seen = save_data["max_episode_score_seen"]
 
-                    print(f"start from episode : {self.episode_number}")
-                    print(f"load model from file : {self.config.load_model_file}")
+                    print(f"load model from file with optimizer_state_dict: {self.config.load_model_file}")
+                    print(f"start from episode : {self.environment.episode_step}")
+                    # print(f"game_full_episode_scores:{self.game_full_episode_scores}")
+                    # print(f"self.rolling_results:{self.rolling_results}")
+                    print(f"self.max_rolling_score_seen:{self.max_rolling_score_seen}, self.max_episode_score_seen:{self.max_episode_score_seen}")
 
             else:
                 print(f"load model from file : {self.config.load_model_file}")
@@ -134,12 +141,12 @@ class DQN(Base_Agent):
         
         if self.config.save_and_load_meta_state:
             data_to_save = {
-                # 'episode': self.episode_number,time_for_q_network_to_learn
+                'episode': self.episode_number,
                 'model_state_dict': self.q_network_local.state_dict(),
-                # 'optimizer_state_dict': self.q_network_optimizer.state_dict(),
-                # 'results_path': results_path,
-                # 'max_rolling_score_seen': self.max_rolling_score_seen,
-                # 'max_episode_score_seen': self.max_episode_score_seen
+                'optimizer_state_dict': self.q_network_optimizer.state_dict(),
+                'results_path': results_path,
+                'max_rolling_score_seen': self.max_rolling_score_seen,
+                'max_episode_score_seen': self.max_episode_score_seen
             }
             print(f"locally_save_policy results path : {results_path}")
             torch.save(data_to_save, policy_path)

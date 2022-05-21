@@ -15,11 +15,11 @@ from agents.actor_critic_agents.Passive_SAC_Discrete import Passive_SAC_Discrete
 
 config = Config()
 config.seed = 1
-config.num_episodes_to_run = 10000
-config.ctu_width = 64
-config.ctu_height = 64
+config.num_episodes_to_run = 20000
+config.ctu_width = 16
+config.ctu_height = 16
 
-config.experiment_name = "exp_4-2_100Mbps"
+config.experiment_name = "exp_3-3"
 config.results_dir = f"/src/results/rc_results/{config.experiment_name}"
 config.file_to_save_data_results = f"{config.results_dir}/rc_hevc_{config.experiment_name}_{config.seed}.pkl"
 config.file_to_save_results_graph = f"{config.results_dir}/rc_hevc_graph-{config.experiment_name}_{config.seed}.png"
@@ -32,16 +32,18 @@ config.use_GPU = True
 config.overwrite_existing_results_file = False
 config.randomise_random_seed = True
 config.save_model = True
+# config.reward_function = "RECIPROCAL"
 
 config.training_episode_per_eval = 5
 config.trials = 10
 config.use_ssd_insteadof_mse = True
 config.save_and_load_meta_state = True
-config.interval_save_result = 5
-config.interval_save_policy = 5
+config.interval_save_result = 20
+config.interval_save_policy = 20
 config.model_dir = f"/src/results/rc_models/{config.experiment_name}"
 config.file_to_save_policy = f"{config.model_dir}/Policy_{config.num_episodes_to_run}_{config.seed}-{config.ctu_width}_{config.ctu_height}.pt"
-config.load_model_file = "/src/results/rc_models/exp_4-1_100Mbps/Policy_10000_1-64_64-Online_DQN-ep_300-score_-236.00841.pt"
+config.load_model_file = "/src/results/rc_models/exp_1-3/Policy_20000_1-16_16-Online_DQN-ep_3000-score_-0.43281.pt"
+# config.load_model_file = "/src/results/rc_models/exp_1-3/Policy_20000_1-16_16-Online_DQN-ep_3000-score_-0.43281.pt"
 
 
 config.trainMode = False
@@ -56,10 +58,9 @@ config.hyperparameters = {
         "discount_rate": 0.999,
         "incremental_td_error": 1e-8, 
         "update_every_n_steps": 1,
-        "linear_hidden_units": [400, 300],
+        "linear_hidden_units": [300, 400],
         "final_layer_activation": None,
-        "y_range": (-1, 14),
-        "batch_norm": False,
+        "batch_norm": True,
         "gradient_clipping_norm": 5,
         "HER_sample_proportion": 0.8,
         "learning_iterations": 1,
