@@ -1,5 +1,7 @@
 numpy
 torch
+torchvision
+torchaudio
 matplotlib
 PyVirtualDisplay
 gym
