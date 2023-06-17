@@ -39,7 +39,7 @@ class Prioritised_Replay_Buffer(Max_Heap, Deque):
             "done": 4
         }
 
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:" + os.getenv('CUDA_DEVICE') if torch.cuda.is_available() else "cpu")
 
     def initialise_td_errors_array(self):
         """Initialises a deque of Nodes of length self.max_size"""

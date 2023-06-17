@@ -1,3 +1,8 @@
+import os
+import sys
+from os.path import dirname, abspath
+sys.path.append(dirname(dirname(abspath(__file__))))
+
 from agents.DQN_agents.DDQN import DDQN
 from environments.Four_Rooms_Environment import Four_Rooms_Environment
 from agents.Trainer import Trainer
@@ -15,15 +20,17 @@ print("Num possible states ", num_possible_states)
 
 config.environment = Four_Rooms_Environment(height, width, stochastic_actions_probability=0.0, random_start_user_place=True, random_goal_place=random_goal_place)
 
-config.num_episodes_to_run = 1000
-config.file_to_save_data_results = "Data_and_Graphs/Four_Rooms.pkl"
-config.file_to_save_results_graph = "Data_and_Graphs/Four_Rooms.png"
+config.num_episodes_to_run = 5000
+config.experiment_name = "FourRoom_Chula"
+config.results_dir = f"/src/results/FourRoom"
+config.file_to_save_data_results = f"{config.results_dir}/{config.experiment_name}_{config.seed}.pkl"
+config.file_to_save_results_graph = f"{config.results_dir}/{config.experiment_name}_{config.seed}.png"
 config.show_solution_score = False
-config.visualise_individual_results = False
+config.visualise_individual_results = True
 config.visualise_overall_agent_results = True
 config.standard_deviation_results = 1.0
-config.runs_per_agent = 3
-config.use_GPU = False
+config.runs_per_agent = 1
+config.use_GPU = True
 config.overwrite_existing_results_file = False
 config.randomise_random_seed = True
 config.save_model = False
@@ -152,7 +159,6 @@ config.hyperparameters = {
 }
 
 if __name__== '__main__':
-
 
     AGENTS = [DDQN] #DIAYN] # A3C] #SNN_HRL] #, DDQN]
     trainer = Trainer(config, AGENTS)

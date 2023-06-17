@@ -14,10 +14,11 @@ sudo apt -y update
 sudo apt -y install docker-ce
 
 #Docker should now be installed, the daemon started, and the process enabled to start on boot. To verify:
-sudo systemctl status docker
+# sudo systemctl status docker
  
 #NOTE: To avoid using sudo for docker activities, add your username to the Docker Group
 sudo usermod -aG docker ${USER}
+newgrp docker
 
 #Docker Compose
 #The command below will download the 1.28.5 release and save the executable at /usr/local/bin/docker-compose, which will make this software globally accessible as docker-compose:
@@ -28,3 +29,10 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 #Verify that the installation was successful by viewing version information:
 docker-compose --version
+
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+sudo apt-get -y update
+sudo apt-get -y install nvidia-docker2
+sudo systemctl restart docker.service

@@ -15,7 +15,7 @@ class Action_Balanced_Replay_Buffer(Replay_Buffer):
         self.batch_size = batch_size
         self.experience = namedtuple("Experience", field_names=["state", "action", "reward", "next_state", "done"])
         self.seed = random.seed(seed)
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:" + os.getenv('CUDA_DEVICE') if torch.cuda.is_available() else "cpu")
 
     def add_experience(self, states, actions, rewards, next_states, dones):
         """Adds experience or list of experiences into the replay buffer"""
