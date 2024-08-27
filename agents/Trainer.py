@@ -278,8 +278,25 @@ class Trainer(object):
             else: color = None
             self.visualise_overall_agent_results(agent_rolling_score_results, agent, show_mean_and_std_range=True,
                                                  color=color, ax=ax, title=title, y_limits=y_limits)
-        if save_image_path: plt.savefig(save_image_path, bbox_inches="tight")
+        if save_image_path: 
+            plt.gcf().set_size_inches(30, 10)
+            plt.savefig(save_image_path, bbox_inches="tight", dpi=200)
+        #%%
         if show_image: plt.show()
+
+    def save_preexisting_results(self, save_image_path=None, data_obj=None, colors=None, show_image=True, ax=None,
+                                      title=None, y_limits=None):
+        """Visualises saved data results and then optionally saves the image"""
+        preexisting_results = data_obj
+        for ix, agent in enumerate(list(preexisting_results.keys())):
+            agent_rolling_score_results = [results[1] for results in preexisting_results[agent]]
+            if colors: color = colors[ix]
+            else: color = None
+            self.visualise_overall_agent_results(agent_rolling_score_results, agent, show_mean_and_std_range=True,
+                                                 color=color, ax=ax, title=title, y_limits=y_limits)
+        if save_image_path: 
+            plt.gcf().set_size_inches(30, 10)
+            plt.savefig(save_image_path, bbox_inches="tight", dpi=200)
 
     def visualise_set_of_preexisting_results(self, results_data_paths, save_image_path=None, show_image=True, plot_titles=None,
                                              y_limits=[None,None]):
