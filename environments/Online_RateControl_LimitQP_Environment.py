@@ -122,7 +122,11 @@ class Online_RateControl_Environment(gym.Env):
         action = self.onRequestAction(state, self.remaining_bit > 0)
 
         print(f"{self.current_ctu} - select action - {action}")
-        assert action < NUM_QP_LEVELS, "You picked an invalid action"
+        assert (
+            action < NUM_QP_LEVELS
+            and action - 3 + self.frame_level_qp >= 0
+            and action - 3 + self.frame_level_qp < 52
+        ), "You picked an invalid action"
 
         # exact_qp_value = 0 < action +- frane level qp < 52
 
@@ -133,7 +137,7 @@ class Online_RateControl_Environment(gym.Env):
         # if exact_qp_value > 52: exact_qp_value = 51
         assert (
             exact_qp_value > 0 and exact_qp_value < 52
-        ), "action affected to invalis frame level qp"
+        ), "action affected to invalid frame level qp"
         # return action
         return exact_qp_value
         # return exact qp instead
